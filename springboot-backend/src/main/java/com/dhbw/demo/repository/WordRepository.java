@@ -1,11 +1,9 @@
 package com.dhbw.demo.repository;
 
+import com.dhbw.demo.model.Word;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.dhbw.demo.model.Persons;
-
 @Repository
-public interface PersonRepository extends JpaRepository<Persons, Integer> {
-
+public interface WordRepository extends JpaRepository<Word, Integer> {
 }

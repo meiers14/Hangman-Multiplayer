@@ -31,3 +31,12 @@ services:
       MYSQL_USER: myuser
       MYSQL_PASSWORD: secret
       MYSQL_ROOT_PASSWORD: verysecret
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
