@@ -4,7 +4,6 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-springboot-backend/target
 
 ### STS ###
 .apt_generated
@@ -39,3 +38,7 @@ out/
 
 ### Angular ###
 angular-frontend/node_modules
+.angular
+
+### Springboot ###
+springboot-backend/target
