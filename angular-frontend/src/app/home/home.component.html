@@ -1,21 +1,27 @@
-<!-- home.component.html -->
 <div class="container text-center">
-    <div class="logo">Hangman Spiel</div>
-    <p class="subtitle">Starten Sie ein neues Spiel oder treten Sie einer Lobby bei, um mit Freunden zu spielen.</p>
+    <div class="logo">Hangman Multiplayer</div>
+    <p class="subtitle">Starte ein neues Spiel oder trete einer Lobby bei, um mit einem Freund zu spielen.</p>
     <form>
-        <div class="form-group">
-            <label for="name">Ihr Name</label>
-            <input type="text" class="form-control" id="name" placeholder="Ihr Name">
+      <div class="form-group">
+        <input type="text" class="form-control" id="name" placeholder="Spielername" (change)=validatePlayerName() [(ngModel)]="playerName">
+      </div>
+      <div class="form-group">
+        <div class="input-group">
+          <input type="text" class="form-control" id="lobbyCode" placeholder="Lobby Code" [(ngModel)]="lobbyCode">
+          <div class="input-group-append">
+            <button type="button" class="btn btn-primary" (click)="joinFriend()">Freund beitreten</button>
+          </div>
         </div>
-        <div class="form-group">
-            <label for="lobbyCode">Lobby-Code</label>
-            <div class="input-group">
-                <input type="text" class="form-control" id="lobbyCode" placeholder="Lobby-Code">
-                <div class="input-group-append">
-                    <button type="button" class="btn btn-primary">Freunden beitreten</button>
-                </div>
-            </div>
-        </div>
-        <button type="button" class="btn btn-primary btn-block">Neues Spiel erstellen</button>
+      </div>
+      <button type="button" class="btn btn-primary btn-block" (click)="createNewGame()">Neues Spiel erstellen</button>
     </form>
-</div>
+  
+    <div *ngIf="playerName">
+      <p>Hallo, {{ playerName }}! Bereit für ein neues Spiel?</p>
+    </div>
+  
+    <ul>
+      <li *ngFor="let player of players">{{ player }}</li>
+    </ul>
+  </div>
+  

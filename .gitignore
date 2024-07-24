@@ -39,6 +39,7 @@ out/
 ### Angular ###
 angular-frontend/node_modules
 .angular
+.DS_Store
 
 ### Springboot ###
 springboot-backend/target
