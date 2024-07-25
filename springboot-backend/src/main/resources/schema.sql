@@ -8,5 +8,6 @@ CREATE TABLE IF NOT EXISTS Lobby (
 
 CREATE TABLE IF NOT EXISTS Word (
                       Id INT AUTO_INCREMENT PRIMARY KEY,
-                      wordDifficulty VARCHAR(255)
+                      wordDifficulty VARCHAR(255),
+                      word VARCHAR(255)
 );

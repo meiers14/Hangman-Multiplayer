@@ -16,7 +16,7 @@ public class LobbyController {
 	private LobbyService lobbyService;
 	
 	
-	@GetMapping("/all")
+	@GetMapping("/allLobbys")
 	public List<Lobby> getAll() {
 		return lobbyService.findAll();
 	}

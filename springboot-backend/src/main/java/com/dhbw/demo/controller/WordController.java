@@ -14,7 +14,7 @@ public class WordController {
     private WordService wordService;
 
 
-    @GetMapping("/all")
+    @GetMapping("/allWords")
     public List<Word> getAll() {
         return wordService.findAll();
     }

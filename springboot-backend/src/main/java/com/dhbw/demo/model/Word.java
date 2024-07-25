@@ -1,6 +1,9 @@
 package com.dhbw.demo.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Type;
+
+import java.util.List;
 
 @Entity
 public class Word {
@@ -12,6 +15,9 @@ public class Word {
     @Enumerated(EnumType.STRING)
     @Column
     private Difficulty wordDifficulty;
+
+    @Column
+    private String word;
 
     public int getId() {
         return Id;
@@ -29,10 +35,19 @@ public class Word {
         this.wordDifficulty = wordDifficulty;
     }
 
-    public Word(int id, Difficulty wordDifficulty) {
+    public String getWord() {
+        return word;
+    }
+
+    public void setWord(String word) {
+        this.word = word;
+    }
+
+    public Word(int id, Difficulty wordDifficulty, String word) {
         super();
         Id = id;
         this.wordDifficulty = wordDifficulty;
+        this.word = word;
     }
 
     public Word() {

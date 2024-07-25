@@ -1,1 +1,1 @@
-//INSERT INITIAL DATA INTO TABLES
+INSERT INTO Word (wordDifficulty, word) VALUES ('LEICHT', 'exampleWord');
