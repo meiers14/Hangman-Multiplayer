@@ -1,4 +1,4 @@
-package com.dhbw.demo;
+package com.dhbw.hangman;
 
 
 //@SpringBootTest
