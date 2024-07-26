@@ -8,18 +8,14 @@ public class Lobby {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int Id;
-	
-	@Column
+
 	private String lobbyCode;
 
-	@Column
 	private String playerA;
 
-	@Column
 	private String playerB;
 
 	@Enumerated(EnumType.STRING)
-	@Column
 	private Difficulty lobbyDifficulty;
 
 
