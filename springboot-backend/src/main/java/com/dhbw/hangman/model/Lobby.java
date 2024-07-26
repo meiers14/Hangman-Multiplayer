@@ -1,4 +1,4 @@
-package com.dhbw.demo.model;
+package com.dhbw.hangman.model;
 
 import jakarta.persistence.*;
 

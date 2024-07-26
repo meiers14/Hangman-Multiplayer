@@ -1,22 +1,21 @@
-package com.dhbw.demo;
+package com.dhbw.hangman;
 
-import com.dhbw.demo.model.Difficulty;
-import com.dhbw.demo.model.Word;
-import com.dhbw.demo.repository.LobbyRepository;
-import com.dhbw.demo.repository.WordRepository;
+import com.dhbw.hangman.model.Difficulty;
+import com.dhbw.hangman.model.Word;
+import com.dhbw.hangman.repository.LobbyRepository;
+import com.dhbw.hangman.repository.WordRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@EnableJpaRepositories(basePackages = "com.dhbw.demo.repository")
-public class BasicApplication {
+@EnableJpaRepositories(basePackages = "com.dhbw.hangman.repository")
+public class HangmanApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(BasicApplication.class, args);
+		SpringApplication.run(HangmanApplication.class, args);
 	}
 
 	@Bean

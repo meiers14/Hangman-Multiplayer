@@ -1,8 +1,7 @@
-package com.dhbw.demo.service;
+package com.dhbw.hangman.service;
 
-import com.dhbw.demo.model.Lobby;
-import com.dhbw.demo.model.Word;
-import com.dhbw.demo.repository.WordRepository;
+import com.dhbw.hangman.model.Word;
+import com.dhbw.hangman.repository.WordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

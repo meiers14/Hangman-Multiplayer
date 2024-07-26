@@ -1,4 +1,4 @@
-package com.dhbw.demo.model;
+package com.dhbw.hangman.model;
 
 public enum Difficulty {
     LEICHT,

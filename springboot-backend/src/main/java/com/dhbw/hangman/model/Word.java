@@ -1,9 +1,6 @@
-package com.dhbw.demo.model;
+package com.dhbw.hangman.model;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.Type;
-
-import java.util.List;
 
 @Entity
 public class Word {

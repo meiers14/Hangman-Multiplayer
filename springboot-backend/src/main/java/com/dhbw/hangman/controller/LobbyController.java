@@ -1,4 +1,4 @@
-package com.dhbw.demo.controller;
+package com.dhbw.hangman.controller;
 
 import java.util.List;
 
@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.dhbw.demo.model.Lobby;
-import com.dhbw.demo.service.LobbyService;
+import com.dhbw.hangman.model.Lobby;
+import com.dhbw.hangman.service.LobbyService;
 
 @RestController
 public class LobbyController {
