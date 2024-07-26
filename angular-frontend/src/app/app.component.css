@@ -1,0 +1,42 @@
+body {
+    margin: 0;
+    font-family: 'Open Sans', sans-serif;
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+  }
+  
+  .app-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  
+  .header {
+    background-color: #2e3a8c;
+    color: #ffffff;
+    padding: 10px 0;
+  }
+  
+  .header .logo {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #ffffff;
+  }
+  
+  .content {
+    flex: 1;
+  }
+  
+  .footer {
+    background-color: #2e3a8c;
+    color: #ffffff;
+    padding: 10px 0;
+  }
+  
+  .footer a {
+    color: #ffffff;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  
