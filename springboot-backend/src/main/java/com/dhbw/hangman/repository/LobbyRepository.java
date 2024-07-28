@@ -7,4 +7,5 @@ import com.dhbw.hangman.model.Lobby;
 
 @Repository
 public interface LobbyRepository extends JpaRepository<Lobby, Integer> {
+    boolean existsByLobbyCode(String lobbyCode);
 }
