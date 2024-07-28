@@ -1,0 +1,84 @@
+<div class="outer-container">
+  <div class="header text-center my-4">
+    <h1 class="app-title">Hangman Basisspiel</h1>
+    <p class="app-description">Errate das Wort, indem du Buchstaben auswählst. Du hast 6 Leben pro Runde. Das Spiel endet nach 5 Runden.</p>
+  </div>
+  <div class="content">
+    <div class="counters-column">
+      <div class="counters-row">
+        <div class="counter">
+          <p>Runde</p>
+          <p>{{ currentRound - 1 }}/{{ maxRounds }}</p>
+        </div>
+        <div class="counter">
+          <p>Leben</p>
+          <p>{{ remainingLives }}</p>
+        </div>
+        <div class="counter">
+          <p>Siege</p>
+          <p>{{ wins }}</p>
+        </div>
+      </div>
+      <div class="footer-buttons mt-4">
+        <button class="btn btn-primary counter-button" (click)="startNewRound()" [disabled]="(!gameOver && !gameWon) || (currentRound > maxRounds)">Neue Runde starten</button>
+        <button class="btn btn-danger counter-button">Spiel verlassen</button>
+      </div>
+    </div>
+
+    <div class="game-column">
+      <div class="game-container">
+        <div class="hangman-image mb-4">
+          <img [src]="hangmanImage" alt="Hangman">
+        </div>
+        
+        <div class="word mb-4">
+          <span *ngFor="let char of displayWord">{{ char }}</span>
+        </div>
+        
+        <div class="letters mb-4">
+          <div class="letter-row">
+            <button *ngFor="let letter of alphabet.slice(0, 9)" (click)="guessLetter(letter)" [disabled]="guessedLetters.includes(letter) || gameOver || gameWon">
+              {{ letter }}
+            </button>
+          </div>
+          <div class="letter-row">
+            <button *ngFor="let letter of alphabet.slice(9, 18)" (click)="guessLetter(letter)" [disabled]="guessedLetters.includes(letter) || gameOver || gameWon">
+              {{ letter }}
+            </button>
+          </div>
+          <div class="letter-row">
+            <button *ngFor="let letter of alphabet.slice(18, 26)" (click)="guessLetter(letter)" [disabled]="guessedLetters.includes(letter) || gameOver || gameWon">
+              {{ letter }}
+            </button>
+          </div>
+        </div>
+        
+        <div *ngIf="gameOver" class="game-over mb-4">
+          <p>Game Over! Das gesuchte Wort war: {{ word }}</p>
+        </div>
+        
+        <div *ngIf="gameWon" class="game-won mb-4">
+          <p>Glückwunsch! Du hast das Wort erraten: {{ word }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-column">
+      <div class="chat-container">
+        <div class="chat-header">
+          <h2>Chat</h2>
+        </div>
+        <div class="chat-messages">
+          <div *ngFor="let message of chatMessages" class="chat-message">
+            <strong>{{ message.sender }}:</strong> {{ message.message }}
+            <span class="chat-timestamp">{{ message.timestamp }}</span>
+          </div>
+        </div>
+        <div class="chat-input">
+          <input type="text" class="form-control" placeholder="Nachricht eingeben..." [(ngModel)]="newMessage">
+          <button class="btn btn-primary" (click)="sendMessage()">Senden</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

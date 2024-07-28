@@ -1,71 +1,137 @@
-/* home.component.css */
-.container {
-    max-width: 600px;
-    margin-top: 150px;
-    padding: 20px;
-}
-
-.logo {
-    font-size: 2.5rem;
-    font-weight: 600;
-    color: #2e3a8c;
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden; /* Verhindert das Scrollen */
+    font-family: 'Open Sans', sans-serif;
+  }
+  
+  .outer-container {
+    height: 100vh; /* Höhe des Containers */
+    margin: 0; /* Kein Margin */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Zentriert den Inhalt vertikal und horizontal */
+    background-color: rgba(255, 255, 255, 0); /* Vollständig transparenter Hintergrund */
+  }
+  
+  .header {
     text-align: center;
-    margin-bottom: 30px;
-}
-
-.subtitle {
+    margin-bottom: 20px;
+  }
+  
+  .home-title {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #333333; /* Dunklere Farbe für besseren Kontrast */
+  }
+  
+  .home-description {
     font-size: 1.2rem;
-    text-align: center;
+    color: #666666; /* Mitteldunkle Farbe für besseren Kontrast */
     margin-bottom: 40px;
-}
-
-.form-group {
-    margin-bottom: 35px;
-}
-
-.form-control {
-    background-color: #f7f7a1;
-    border-color: #2e3a8c;
+    text-align: center;
+  }
+  
+  .content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  .home-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .home-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .form-group {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+  
+  .form-group label {
+    display: block;
+    font-weight: bold;
+    color: #333333; /* Dunklere Farbe für besseren Kontrast */
+    margin-bottom: 5px;
+  }
+  
+  .form-group input {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #333333; /* Dunklere Randfarbe */
     border-radius: 5px;
-    font-size: 1.1rem;
-    padding: 15px;
-    height: 50px;
-}
-
-.btn-primary {
-    background-color: #2e3a8c;
-    border-color: #2e3a8c;
-    font-weight: 600;
+    background-color: #f0f0f0; /* Hellere Hintergrundfarbe */
+    color: #333333; /* Dunklere Schriftfarbe */
+  }
+  
+  .button-group {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px; /* Abstand zwischen den Buttons */
+  }
+  
+  .button-group button {
+    flex: 1;
+    padding: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ffffff; /* Weiße Schriftfarbe */
+    background-color: #4caf50; /* Grün für den Button */
+    border: none;
     border-radius: 5px;
-    font-size: 1.1rem;
-    padding: 15px;
-    height: 50px;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-}
+  }
+  
+  .button-group button:hover {
+    background-color: #45a049; /* Dunkleres Grün beim Hover */
+  }
 
-.input-group {
-    display: flex;
-}
+/* ... vorhandene CSS-Regeln ... */
 
-.input-group .form-control {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-}
-
-.input-group .btn {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
-    font-size: 1.1rem;
-    padding: 0 15px;
-    height: 50px;
-}
-
-.input-group-append .btn {
-    border-left: 0;
-}
+.error {
+    color: red;
+    font-size: 0.9rem;
+  }
+  
+  .error-messages {
+    margin-bottom: 20px;
+    color: red;
+    font-size: 0.9rem;
+  }
+  
+  .disabled-button {
+    background-color: #d3d3d3 !important; /* Wichtig, um die Hintergrundfarbe zu überschreiben */
+    color: #888888 !important; /* Wichtig, um die Textfarbe zu überschreiben */
+    cursor: not-allowed !important; /* Wichtig, um den Cursor zu überschreiben */
+  }
+  
+  button[disabled] {
+    background-color: #d3d3d3 !important; /* Wichtig, um die Hintergrundfarbe zu überschreiben */
+    color: #888888 !important; /* Wichtig, um die Textfarbe zu überschreiben */
+    cursor: not-allowed !important; /* Wichtig, um den Cursor zu überschreiben */
+  }
+  
+  
+  
+  
+  
+  
+  
