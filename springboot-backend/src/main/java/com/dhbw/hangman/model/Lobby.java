@@ -13,6 +13,7 @@ public class Lobby {
 
 	private String playerA;
 
+
 	private String playerB;
 
 	@Enumerated(EnumType.STRING)
@@ -41,6 +42,14 @@ public class Lobby {
 
 	public void setPlayerA(String playerA) {
 		this.playerA = playerA;
+	}
+
+	public String getPlayerB() {
+		return playerB;
+	}
+
+	public void setPlayerB(String playerB) {
+		this.playerB = playerB;
 	}
 
 	public Difficulty getLobbyDifficulty() {
