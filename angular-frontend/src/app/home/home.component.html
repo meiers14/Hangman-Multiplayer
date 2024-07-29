@@ -5,7 +5,7 @@
   </div>
   <div class="content">
     <div class="home-column">
-      <form class="home-form" #form="ngForm" (ngSubmit)="joinGame(form)">
+      <form class="home-form" #form="ngForm">
         <div *ngIf="errorMessages.length" class="error-messages">
           <ul>
             <li *ngFor="let error of errorMessages">{{ error }}</li>
@@ -24,8 +24,8 @@
           </div>
         </div>
         <div class="button-group">
-          <button type="submit" [disabled]="form.invalid">Freund beitreten</button>
-          <button type="button" (click)="createGame()" [disabled]="!username || !!lobbyCode" [ngClass]="{'disabled-button': !username || !!lobbyCode}">Neues Spiel erstellen</button>
+          <button type="submit" class="btn btn-primary" (click)="joinLobby()" [disabled]="form.invalid">Freund beitreten</button>
+          <button type="button" class="btn btn-secondary" (click)="createLobby()" [disabled]="!username || !!lobbyCode" [ngClass]="{'disabled-button': !username || !!lobbyCode}">Neues Spiel erstellen</button>
         </div>
       </form>
     </div>
