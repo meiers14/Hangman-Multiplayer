@@ -1,27 +1,33 @@
-<div class="container text-center">
-    <div class="logo">Hangman Multiplayer</div>
-    <p class="subtitle">Starte ein neues Spiel oder trete einer Lobby bei, um mit einem Freund zu spielen.</p>
-    <form>
-      <div class="form-group">
-        <input type="text" class="form-control" id="name" placeholder="Spielername" (change)=validatePlayerName() [(ngModel)]="playerName">
-      </div>
-      <div class="form-group">
-        <div class="input-group">
-          <input type="text" class="form-control" id="lobbyCode" placeholder="Lobby Code" [(ngModel)]="lobbyCode">
-          <div class="input-group-append">
-            <button type="button" class="btn btn-primary" (click)="joinFriend()">Freund beitreten</button>
+<div class="outer-container">
+  <div class="header text-center my-4">
+    <h1 class="home-title">Hangman Multiplayer</h1>
+    <p class="home-description">Starte ein neues Spiel oder trete einer Lobby bei, um mit einem Freund zu spielen</p>
+  </div>
+  <div class="content">
+    <div class="home-column">
+      <form class="home-form" #form="ngForm" (ngSubmit)="joinGame(form)">
+        <div *ngIf="errorMessages.length" class="error-messages">
+          <ul>
+            <li *ngFor="let error of errorMessages">{{ error }}</li>
+          </ul>
+        </div>
+        <div class="form-group">
+          <label for="username">Spielername</label>
+          <input type="text" id="username" name="username" [(ngModel)]="username" required>
+        </div>
+        <div class="form-group">
+          <label for="lobby-code">Lobby Code</label>
+          <input type="text" id="lobby-code" name="lobbyCode" [(ngModel)]="lobbyCode" maxlength="6" pattern="^[a-zA-Z0-9]*$" #lobbyCodeField="ngModel" required>
+          <div *ngIf="(lobbyCodeField.touched && lobbyCodeField.invalid) || (form.submitted && !lobbyCode)">
+            <small class="error" *ngIf="form.submitted && !lobbyCode">Lobby Code ist erforderlich.</small>
+            <small class="error" *ngIf="lobbyCodeField.errors?.['pattern']">Lobby Code darf nur Buchstaben und Zahlen enthalten.</small>
           </div>
         </div>
-      </div>
-      <button type="button" class="btn btn-primary btn-block" (click)="createNewGame()">Neues Spiel erstellen</button>
-    </form>
-  
-    <div *ngIf="playerName">
-      <p>Hallo, {{ playerName }}! Bereit für ein neues Spiel?</p>
+        <div class="button-group">
+          <button type="submit" [disabled]="form.invalid">Freund beitreten</button>
+          <button type="button" (click)="createGame()" [disabled]="!username || !!lobbyCode" [ngClass]="{'disabled-button': !username || !!lobbyCode}">Neues Spiel erstellen</button>
+        </div>
+      </form>
     </div>
-  
-    <ul>
-      <li *ngFor="let player of players">{{ player }}</li>
-    </ul>
   </div>
-  
+</div>
