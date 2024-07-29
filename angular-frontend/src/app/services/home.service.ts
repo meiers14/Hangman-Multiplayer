@@ -22,4 +22,8 @@ export class HomeService {
   isUsernameTaken(lobbyCode: string, username: string): boolean {
     return this.lobbies[lobbyCode].players.includes(username);
   }
+
+  generateLobbyCode(): string {
+    return "TEST12"
+  }
 }

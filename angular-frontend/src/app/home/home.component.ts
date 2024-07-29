@@ -13,28 +13,25 @@ export class HomeComponent {
   lobbyCode: string = '';
   errorMessages: string[] = [];
 
-  constructor(private router: Router, private homeService: HomeService) {}
+  constructor(private router: Router, private homeService: HomeService) { }
 
-  joinGame(form: NgForm) {
-    this.errorMessages = [];
-    if (form.valid) {
-      if (this.validateJoinGame()) {
-        // Logik für das Beitreten eines Spiels
-        console.log("Joining game...");
-        this.router.navigate(['/game'], { queryParams: { username: this.username, lobbyCode: this.lobbyCode } });
-      }
-    } else {
-      form.controls['lobbyCode'].markAsTouched();
+  createLobby() {
+    // Logik zum Erstellen einer Lobby
+    this.lobbyCode = this.generateLobbyCode();
+    this.router.navigate(['/', this.lobbyCode]);
+  }
+
+  generateLobbyCode(): string {
+    return this.homeService.generateLobbyCode();
+  }
+
+  joinLobby() {
+    if (this.validateJoinLobby()) {
+      this.router.navigate(['/', this.lobbyCode]);
     }
   }
 
-  createGame() {
-    // Logik für das Erstellen eines neuen Spiels
-    console.log("Creating game...");
-    this.router.navigate(['/game'], { queryParams: { username: this.username } });
-  }
-
-  validateJoinGame(): boolean {
+  validateJoinLobby(): boolean {
     if (!this.homeService.isLobbyCodeValid(this.lobbyCode)) {
       this.errorMessages.push("Der eingegebene Lobby-Code existiert nicht.");
       return false;
