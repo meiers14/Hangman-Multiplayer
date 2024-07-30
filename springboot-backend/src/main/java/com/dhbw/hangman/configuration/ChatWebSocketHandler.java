@@ -20,10 +20,9 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        // Broadcast the message to all connected clients
         synchronized (sessions) {
             for (WebSocketSession webSocketSession : sessions) {
-                if (webSocketSession.isOpen() && !webSocketSession.getId().equals(session.getId())) {
+                if (webSocketSession.isOpen()) {
                     webSocketSession.sendMessage(message);
                 }
             }
@@ -35,4 +34,3 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         sessions.remove(session);
     }
 }
-
