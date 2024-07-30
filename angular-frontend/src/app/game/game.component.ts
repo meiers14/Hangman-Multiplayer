@@ -105,9 +105,8 @@ export class GameComponent implements OnInit {
   sendMessage() {
     if (this.newMessage.trim()) {
       this.webSocketService.sendMessage(this.newMessage);
-      const timestamp = new Date().toLocaleTimeString();
-      this.chatMessages.push({ sender: 'Spieler', message: this.newMessage, timestamp });
       this.newMessage = '';
     }
   }
+
 }
