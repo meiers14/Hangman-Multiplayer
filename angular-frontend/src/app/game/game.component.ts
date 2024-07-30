@@ -1,4 +1,5 @@
 import { Component, HostListener, OnInit } from '@angular/core';
+import { WebSocketService } from '../services/game.service';
 
 @Component({
   selector: 'app-game',
@@ -21,8 +22,15 @@ export class GameComponent implements OnInit {
   chatMessages: { sender: string, message: string, timestamp: string }[] = [];
   newMessage: string = '';
 
+  constructor(private webSocketService: WebSocketService) { }
+
   ngOnInit() {
     this.startNewRound();
+
+    this.webSocketService.messages$.subscribe(message => {
+      const timestamp = new Date().toLocaleTimeString();
+      this.chatMessages.push({ sender: 'Spieler', message: message.message, timestamp });
+    });
   }
 
   @HostListener('window:keydown', ['$event'])
@@ -96,9 +104,9 @@ export class GameComponent implements OnInit {
 
   sendMessage() {
     if (this.newMessage.trim()) {
-      const timestamp = new Date().toLocaleTimeString();
-      this.chatMessages.push({ sender: 'Spieler', message: this.newMessage, timestamp });
+      this.webSocketService.sendMessage(this.newMessage);
       this.newMessage = '';
     }
   }
+
 }
