@@ -1,29 +1,24 @@
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Lobby } from '../models/lobby';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HomeService {
-  private lobbies: { [key: string]: { players: string[]; maxPlayers: number } } = {
-    'ABC123': { players: ['Alice'], maxPlayers: 2 },
-    'XYZ789': { players: ['Bob', 'Charlie'], maxPlayers: 3 }
-  };
+  private apiUrl = 'http://localhost:8080';
 
-  constructor() {}
+  constructor(private http: HttpClient) {}
 
-  isLobbyCodeValid(lobbyCode: string): boolean {
-    return this.lobbies.hasOwnProperty(lobbyCode);
+  createLobby(lobby: Lobby): Observable<Lobby> {
+    return this.http.post(`${this.apiUrl}/createLobby`, lobby, {});
   }
 
-  isLobbyFull(lobbyCode: string): boolean {
-    return this.lobbies[lobbyCode].players.length >= this.lobbies[lobbyCode].maxPlayers;
-  }
-
-  isUsernameTaken(lobbyCode: string, username: string): boolean {
-    return this.lobbies[lobbyCode].players.includes(username);
-  }
-
-  generateLobbyCode(): string {
-    return "TEST12"
+  joinLobby(lobbyCode: string, playerB: string): Observable<string> {
+    const params = new HttpParams()
+      .set('lobbyCode', lobbyCode)
+      .set('playerB', playerB);
+    return this.http.put(`${this.apiUrl}/joinLobby`, {}, { params, responseType: 'text' });
   }
 }

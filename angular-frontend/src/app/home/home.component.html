@@ -6,11 +6,6 @@
   <div class="content">
     <div class="home-column">
       <form class="home-form" #form="ngForm">
-        <div *ngIf="errorMessages.length" class="error-messages">
-          <ul>
-            <li *ngFor="let error of errorMessages">{{ error }}</li>
-          </ul>
-        </div>
         <div class="form-group">
           <label for="username">Spielername</label>
           <input type="text" id="username" name="username" [(ngModel)]="username" required>
@@ -18,10 +13,6 @@
         <div class="form-group">
           <label for="lobby-code">Lobby Code</label>
           <input type="text" id="lobby-code" name="lobbyCode" [(ngModel)]="lobbyCode" maxlength="6" pattern="^[a-zA-Z0-9]*$" #lobbyCodeField="ngModel" required>
-          <div *ngIf="(lobbyCodeField.touched && lobbyCodeField.invalid) || (form.submitted && !lobbyCode)">
-            <small class="error" *ngIf="form.submitted && !lobbyCode">Lobby Code ist erforderlich.</small>
-            <small class="error" *ngIf="lobbyCodeField.errors?.['pattern']">Lobby Code darf nur Buchstaben und Zahlen enthalten.</small>
-          </div>
         </div>
         <div class="button-group">
           <button type="submit" class="btn btn-primary" (click)="joinLobby()" [disabled]="form.invalid">Freund beitreten</button>
