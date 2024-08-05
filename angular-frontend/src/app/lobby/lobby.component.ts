@@ -22,6 +22,7 @@ export class LobbyComponent implements OnInit {
   players: string[] = [];
 
   // Frontend Component
+  role: string = '';
   selectedDifficultyValue!: number;
   selectedDifficultyLabel: string = '';
   selectedMode: string = '';
@@ -65,12 +66,14 @@ export class LobbyComponent implements OnInit {
         console.log(lobby);
         this.lobby = lobby;
 
-        if (this.lobby.playerA) {
+        if (this.lobby.playerA && this.lobby.playerA != '') {
           this.players.push(this.lobby.playerA);
         }
-        if (this.lobby.playerB) {
+        if (this.lobby.playerB && this.lobby.playerB.trim() != '') {
           this.players.push(this.lobby.playerB);
         }
+
+        this.determineRole();
 
         if (lobby.lobbyDifficulty) {
           this.selectedDifficultyValue = this.difficultyToNumber(lobby.lobbyDifficulty);
@@ -86,6 +89,14 @@ export class LobbyComponent implements OnInit {
         }
       }
     });
+  }
+
+  determineRole(): void {
+    if (this.lobby.playerA === this.username) {
+      this.role = 'A';
+    } else if (this.lobby.playerB === this.username) {
+      this.role = 'B';
+    }
   }
 
   difficultyToNumber(difficulty: Difficulty): number {
@@ -120,12 +131,18 @@ export class LobbyComponent implements OnInit {
     console.log(this.difficulty);
   }
 
-  copyInviteLink() {
-    const inviteLink = `${window.location.origin}/${this.lobbyCode}`;
-    navigator.clipboard.writeText(inviteLink).then(() => {
-      alert('Einladungslink kopiert: ' + inviteLink);
+  copyLobbyCode() {
+    navigator.clipboard.writeText(this.lobbyCode).then(() => {
+      this.snackBar.open('Lobby-Code kopiert: ' + this.lobbyCode, 'Schließen', { duration: 3000 });
     });
   }
+
+  // copyInviteLink() {
+  //   const inviteLink = `${window.location.origin}/${this.lobbyCode}`;
+  //   navigator.clipboard.writeText(inviteLink).then(() => {
+  //     alert('Einladungslink kopiert: ' + inviteLink);
+  //   });
+  // }
 
   selectMode(mode: string) {
     this.selectedMode = mode;
