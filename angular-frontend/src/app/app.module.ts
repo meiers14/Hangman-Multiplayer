@@ -14,7 +14,7 @@ import { LobbyComponent } from './lobby/lobby.component';
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'game', component: GameComponent },
-  { path: ':lobbyCode', component: LobbyComponent }, // Lobby-Code als Pfad
+  { path: 'lobby', component: LobbyComponent },
   // Weitere Routen hier hinzufügen
 ];
 

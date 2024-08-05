@@ -4,6 +4,7 @@ import { HomeService } from '../services/home.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Lobby } from '../models/lobby';
 import { Difficulty } from '../models/difficulty.enum';
+import { SharedDataService } from '../shared-data.service';
 
 @Component({
   selector: 'app-home',
@@ -11,10 +12,11 @@ import { Difficulty } from '../models/difficulty.enum';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent {
+  // Shared Data
   lobbyCode: string = '';
   username: string = '';
 
-  constructor(private router: Router, private homeService: HomeService, private snackBar: MatSnackBar) { }
+  constructor(private router: Router, private homeService: HomeService, private snackBar: MatSnackBar, private sharedDataService: SharedDataService) { }
 
   createLobby(): void {
     const lobby: Lobby = {
@@ -27,7 +29,9 @@ export class HomeComponent {
         console.log(lobby);
         if (lobby.lobbyCode) {
           this.lobbyCode = lobby.lobbyCode;
-          this.router.navigate(['/', this.lobbyCode]);
+          this.sharedDataService.set('lobbyCode', this.lobbyCode);
+          this.sharedDataService.set('username', this.username);
+          this.router.navigate(['/lobby'], { state: { lobbyCode: this.lobbyCode, username: this.username } });
           this.snackBar.open('Neue Lobby erfolgreich erstellt', 'Schließen', { duration: 3000 });
         }
       },
@@ -46,7 +50,9 @@ export class HomeComponent {
     this.homeService.joinLobby(this.lobbyCode, this.username).subscribe({
       next: (response: string) => {
         console.log(response);
-        this.router.navigate(['/', this.lobbyCode]);
+        this.sharedDataService.set('lobbyCode', this.lobbyCode);
+        this.sharedDataService.set('username', this.username);
+        this.router.navigate(['/lobby'], { state: { lobbyCode: this.lobbyCode, username: this.username } });
         this.snackBar.open(response, 'Schließen', { duration: 3000 });
       },
       error: (error) => {

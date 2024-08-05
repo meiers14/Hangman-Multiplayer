@@ -1,58 +1,53 @@
 <div class="outer-container">
-    <div class="header text-center my-4">
-      <h1 class="app-title">Lobby</h1>
-    </div>
-  
-    <div class="top-section">
-      <div class="players">
-        <div class="player-box" *ngFor="let player of players">
-          {{ player }}
-        </div>
-      </div>
-      <div class="lobby-code-section">
-        <button class="btn copy-btn" (click)="copyInviteLink()">
-          <i class="fa fa-copy"></i> {{ lobbyCode }}
-        </button>
+  <div class="header text-center my-4">
+    <h1 class="app-title">Lobby</h1>
+  </div>
+
+  <div class="top-section">
+    <div class="players">
+      <div class="player-box" *ngFor="let player of players">
+        {{ player }}
       </div>
     </div>
-  
-    <div class="content">
-      <div class="game-modes-column">
-        <h2 class="modes-title">Wähle einen Spielmodus</h2>
-        <div class="modes-row">
-          <div class="mode" *ngFor="let mode of gameModes" (click)="selectMode(mode.name)" [ngClass]="{'selected': selectedMode === mode.name}">
-            <div class="card">
-              <img [src]="mode.image" class="card-img-top" alt="{{ mode.name }}">
-              <div class="card-body">
-                <h5 class="card-title">{{ mode.name }}</h5>
-                <p class="card-text">{{ mode.description }}</p>
-              </div>
+    <div class="lobby-code-section">
+      <button class="btn copy-btn" (click)="copyInviteLink()">
+        <i class="fa fa-copy"></i> {{ lobbyCode }}
+      </button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="game-modes-column">
+      <h2 class="modes-title">Wähle einen Spielmodus</h2>
+      <div class="modes-row">
+        <div class="mode" *ngFor="let mode of gameModes" (click)="selectMode(mode.name)" [ngClass]="{'selected': selectedMode === mode.name}">
+          <div class="card">
+            <img [src]="mode.image" class="card-img-top" alt="{{ mode.name }}">
+            <div class="card-body">
+              <h5 class="card-title">{{ mode.name }}</h5>
+              <p class="card-text">{{ mode.description }}</p>
             </div>
           </div>
         </div>
       </div>
-  
-      <div class="difficulty-slider">
-        <h3>Schwierigkeit</h3>
-        <input type="range" min="1" max="3" step="1" [(ngModel)]="difficulty" (change)="updateDifficulty()" list="difficulty-ticks" [disabled]="!selectedMode">
-        <datalist id="difficulty-ticks">
-          <option value="1" label="EINFACH"></option>
-          <option value="2" label="MITTEL"></option>
-          <option value="3" label="SCHWER"></option>
-        </datalist>
-        <p>{{ difficultyLabel }}</p>
+    </div>
+
+    <div class="difficulty-slider">
+      <h3>Schwierigkeit</h3>
+      <input type="range" min="0" max="2" step="1" [(ngModel)]="selectedDifficultyValue" (change)="updateDifficulty()" list="difficulty-ticks" [disabled]="!selectedMode">
+      <p>{{ selectedDifficultyLabel }}</p>
+    </div>
+
+    <div class="actions">
+      <div class="action-cell"></div>
+      <div class="action-cell">
+        <button class="btn btn-primary start-game-btn" [disabled]="!selectedMode || players.length < 2" (click)="startGame()">
+          Spiel starten
+        </button>
       </div>
-  
-      <div class="actions">
-        <div class="action-cell"></div>
-        <div class="action-cell">
-          <button class="btn btn-primary start-game-btn" [disabled]="!selectedMode || players.length < 2" (click)="startGame()">
-            Spiel starten
-          </button>
-        </div>
-        <div class="action-cell">
-          <button class="btn btn-danger leave-lobby-btn" (click)="leaveLobby()">Lobby verlassen</button>
-        </div>
+      <div class="action-cell">
+        <button class="btn btn-danger leave-lobby-btn" (click)="leaveLobby()">Lobby verlassen</button>
       </div>
     </div>
   </div>
+</div>

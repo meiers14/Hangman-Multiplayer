@@ -27,9 +27,14 @@ public class LobbyController {
         return new ResponseEntity<>(lobbies, HttpStatus.OK);
     }
 
-    @GetMapping("/findLobbyByDifficulty")
-    public Lobby findLobbyByLobbyCode(@RequestParam String lobbyCode) {
-        return lobbyRepository.findByLobbyCode(lobbyCode);
+    @GetMapping("/findLobbyByLobbyCode")
+    public ResponseEntity<Lobby> findLobbyByLobbyCode(@RequestParam String lobbyCode) {
+        try {
+            Lobby lobby = lobbyRepository.findByLobbyCode(lobbyCode);
+            return new ResponseEntity<>(lobby, HttpStatus.OK);
+        } catch (DataAccessException e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PostMapping("/createLobby")
