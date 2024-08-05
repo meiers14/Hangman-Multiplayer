@@ -24,12 +24,10 @@ jobs:
         sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
         sudo chmod +x /usr/local/bin/docker-compose
 
+    - name: Stop and remove old containers
+      run: |
+        docker-compose down --volumes --remove-orphans
+
     - name: Build and start Docker containers
       run: |
         docker-compose -f docker-compose.yaml up --build -d
-
-    - name: Run tests (optional)
-      run: |
-        # Hier kannst du deine Testbefehle hinzufügen
-        # z.B. curl -f http://localhost:8080/health
-        echo "Tests erfolgreich"
