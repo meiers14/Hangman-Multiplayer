@@ -24,12 +24,19 @@ jobs:
         sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
         sudo chmod +x /usr/local/bin/docker-compose
 
-    - name: Build and start Docker containers
-      run: |
-        docker-compose -f docker-compose.yaml up --build -d
+    - name: Check for processes using port 8084
+      run: sudo lsof -i -P -n | grep 8084 || true
 
-    - name: Run tests (optional)
+    - name: Stop process using port 8084
+      run: sudo fuser -k 8084/tcp || true
+
+    - name: Stop and remove all running containers
       run: |
-        # Hier kannst du deine Testbefehle hinzufügen
-        # z.B. curl -f http://localhost:8080/health
-        echo "Tests erfolgreich"
+        docker stop $(docker ps -q) || true
+        docker rm $(docker ps -a -q) || true
+
+    - name: Remove all unused images
+      run: docker image prune -f
+
+    - name: Build and start Docker containers
+      run: docker-compose up --build -d
