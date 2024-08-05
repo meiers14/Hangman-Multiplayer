@@ -26,7 +26,11 @@ jobs:
 
     - name: Stop and remove old containers
       run: |
-        docker-compose down --volumes --remove-orphans
+        docker stop $(docker ps -q) || true
+        docker rm $(docker ps -a -q) || true
+
+    - name: Remove dangling images
+      run: docker image prune -f
 
     - name: Build and start Docker containers
       run: |
