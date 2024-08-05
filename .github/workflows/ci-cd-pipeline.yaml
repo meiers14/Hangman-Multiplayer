@@ -24,14 +24,16 @@ jobs:
         sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
         sudo chmod +x /usr/local/bin/docker-compose
 
-    - name: Stop and remove old containers
+    - name: List currently running containers
+      run: docker ps
+
+    - name: Stop and remove all running containers
       run: |
         docker stop $(docker ps -q) || true
         docker rm $(docker ps -a -q) || true
 
-    - name: Remove dangling images
+    - name: Remove all unused images
       run: docker image prune -f
 
     - name: Build and start Docker containers
-      run: |
-        docker-compose -f docker-compose.yaml up --build -d
+      run: docker-compose up --build -d
