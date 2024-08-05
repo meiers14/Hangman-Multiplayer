@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   frontend:
     build:
@@ -21,7 +23,8 @@ services:
       spring.datasource.driver-class-name: com.mysql.cj.jdbc.Driver
       spring.jpa.hibernate.ddl-auto: update
     depends_on:
-      - mysqldb
+      mysqldb:
+        condition: service_healthy
 
   backend2:
     build:
@@ -38,7 +41,8 @@ services:
       spring.datasource.driver-class-name: com.mysql.cj.jdbc.Driver
       spring.jpa.hibernate.ddl-auto: update
     depends_on:
-      - mysqldb
+      mysqldb:
+        condition: service_healthy
 
   backend3:
     build:
@@ -55,7 +59,8 @@ services:
       spring.datasource.driver-class-name: com.mysql.cj.jdbc.Driver
       spring.jpa.hibernate.ddl-auto: update
     depends_on:
-      - mysqldb
+      mysqldb:
+        condition: service_healthy
 
   mysqldb:
     image: mysql:8.0
@@ -79,7 +84,7 @@ services:
     image: nginx:latest
     container_name: nginx
     volumes:
-      - ./nginx/nginx.conf:/nginx/nginx.conf
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     ports:
       - "8080:80"
     depends_on:
