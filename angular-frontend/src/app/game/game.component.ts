@@ -13,16 +13,13 @@ import { SharedDataService } from '../shared-data.service';
   styleUrls: ['./game.component.css']
 })
 export class GameComponent implements OnInit {
-  // Shared Data
   lobbyCode: string = '';
   username: string = '';
 
-  // Database
   lobby!: Lobby;
   difficulty!: Difficulty;
   players: string[] = [];
 
-  // Game
   alphabet: string[] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
   guessedLetters: string[] = [];
   words: string[] = ['ANGULAR', 'TYPESCRIPT', 'COMPONENT', 'SERVICE', 'DIRECTIVE'];
@@ -36,11 +33,16 @@ export class GameComponent implements OnInit {
   maxRounds: number = 5;
   wins: number = 0;
 
-  // Chat
   chatMessages: { sender: string, message: string, timestamp: string }[] = [];
   newMessage: string = '';
 
-  constructor(private router: Router, private lobbyService: LobbyService, private snackBar: MatSnackBar, private sharedDataService: SharedDataService, private gameService: GameService) { }
+  constructor(
+      private router: Router,
+      private lobbyService: LobbyService,
+      private snackBar: MatSnackBar,
+      private sharedDataService: SharedDataService,
+      private gameService: GameService
+  ) {}
 
   ngOnInit() {
     this.lobbyCode = this.sharedDataService.get('lobbyCode');
@@ -49,23 +51,29 @@ export class GameComponent implements OnInit {
 
     this.startNewRound();
 
-    this.gameService.messages$.subscribe(message => {
-      const timestamp = new Date().toLocaleTimeString();
-      // TODO: Hier muss der Absender der Nachricht (this.username) geändert werden
-      this.chatMessages.push({ sender: this.username, message: message.message, timestamp });
+    this.gameService.isConnected().subscribe(connected => {
+      if (connected) {
+        this.gameService.subscribe(this.lobbyCode, (message) => {
+          console.log(`Message received for lobby code: ${this.lobbyCode}`); // Konsolenausgabe für den Lobby-Code
+          const timestamp = new Date().toLocaleTimeString();
+          this.chatMessages.push({
+            sender: message.username || 'Unknown',
+            message: message.message,
+            timestamp
+          });
+        });
+      }
     });
   }
 
   getLobby(): void {
     this.lobbyService.getLobbyByCode(this.lobbyCode).subscribe({
       next: (lobby: Lobby) => {
-        // On refreshing the page
         if (!lobby || lobby === null) {
           this.router.navigate(['/']);
           throw new Error('Lobby ist null oder nicht gefunden');
         }
 
-        console.log(lobby);
         this.lobby = lobby;
 
         if (this.lobby.playerA && this.lobby.playerA != '') {
@@ -161,10 +169,17 @@ export class GameComponent implements OnInit {
 
   sendMessage() {
     if (this.newMessage.trim()) {
-      this.gameService.sendMessage(this.newMessage);
+      const chatMessage = {
+        username: this.username,
+        message: this.newMessage,
+        lobbyCode: this.lobbyCode
+      };
+      console.log(`Sending message to lobby code: ${this.lobbyCode}`, chatMessage); // Debugging-Ausgabe
+      this.gameService.sendMessage('/app/send', chatMessage);
       this.newMessage = '';
     }
   }
+
 
   leaveGame() {
     this.router.navigate(['/lobby']);
