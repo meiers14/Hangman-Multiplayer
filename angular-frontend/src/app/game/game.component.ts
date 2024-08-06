@@ -1,5 +1,11 @@
 import { Component, HostListener, OnInit } from '@angular/core';
-import { WebSocketService } from '../services/game.service';
+import { GameService } from '../services/game.service';
+import { Lobby } from '../models/lobby';
+import { Difficulty } from '../models/difficulty.enum';
+import { LobbyService } from '../services/lobby.service';
+import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SharedDataService } from '../shared-data.service';
 
 @Component({
   selector: 'app-game',
@@ -7,6 +13,16 @@ import { WebSocketService } from '../services/game.service';
   styleUrls: ['./game.component.css']
 })
 export class GameComponent implements OnInit {
+  // Shared Data
+  lobbyCode: string = '';
+  username: string = '';
+
+  // Database
+  lobby!: Lobby;
+  difficulty!: Difficulty;
+  players: string[] = [];
+
+  // Game
   alphabet: string[] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
   guessedLetters: string[] = [];
   words: string[] = ['ANGULAR', 'TYPESCRIPT', 'COMPONENT', 'SERVICE', 'DIRECTIVE'];
@@ -19,17 +35,57 @@ export class GameComponent implements OnInit {
   currentRound: number = 1;
   maxRounds: number = 5;
   wins: number = 0;
+
+  // Chat
   chatMessages: { sender: string, message: string, timestamp: string }[] = [];
   newMessage: string = '';
 
-  constructor(private webSocketService: WebSocketService) { }
+  constructor(private router: Router, private lobbyService: LobbyService, private snackBar: MatSnackBar, private sharedDataService: SharedDataService, private gameService: GameService) { }
 
   ngOnInit() {
+    this.lobbyCode = this.sharedDataService.get('lobbyCode');
+    this.username = this.sharedDataService.get('username');
+    this.getLobby();
+
     this.startNewRound();
 
-    this.webSocketService.messages$.subscribe(message => {
+    this.gameService.messages$.subscribe(message => {
       const timestamp = new Date().toLocaleTimeString();
-      this.chatMessages.push({ sender: 'Spieler', message: message.message, timestamp });
+      this.chatMessages.push({ sender: this.username, message: message.message, timestamp });
+    });
+  }
+
+  getLobby(): void {
+    this.lobbyService.getLobbyByCode(this.lobbyCode).subscribe({
+      next: (lobby: Lobby) => {
+        // On refreshing the page
+        if (!lobby || lobby === null) {
+          this.router.navigate(['/']);
+          throw new Error('Lobby ist null oder nicht gefunden');
+        }
+
+        console.log(lobby);
+        this.lobby = lobby;
+
+        if (this.lobby.playerA && this.lobby.playerA != '') {
+          this.players.push(this.lobby.playerA);
+        }
+        if (this.lobby.playerB && this.lobby.playerB.trim() != '') {
+          this.players.push(this.lobby.playerB);
+        }
+
+        if (lobby.lobbyDifficulty) {
+          this.difficulty = lobby.lobbyDifficulty;
+        }
+      },
+      error: (error) => {
+        console.error('Fehler:', error);
+        if (error.error) {
+          this.snackBar.open(error.error, 'Schließen', { duration: 3000 });
+        } else {
+          this.snackBar.open('Fehler beim Abrufen der Lobby', 'Schließen', { duration: 3000 });
+        }
+      }
     });
   }
 
@@ -104,9 +160,12 @@ export class GameComponent implements OnInit {
 
   sendMessage() {
     if (this.newMessage.trim()) {
-      this.webSocketService.sendMessage(this.newMessage);
+      this.gameService.sendMessage(this.newMessage);
       this.newMessage = '';
     }
   }
 
+  leaveGame() {
+    this.router.navigate(['/lobby']);
+  }
 }

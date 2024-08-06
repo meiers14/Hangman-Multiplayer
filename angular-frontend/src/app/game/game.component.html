@@ -21,7 +21,7 @@
             </div>
             <div class="footer-buttons mt-4">
                 <button class="btn btn-primary counter-button" (click)="startNewRound()" [disabled]="(!gameOver && !gameWon) || (currentRound > maxRounds)">Neue Runde starten</button>
-                <button class="btn btn-danger counter-button">Spiel verlassen</button>
+                <button class="btn btn-danger counter-button" (click)="leaveGame()">Spiel verlassen</button>
             </div>
         </div>
 

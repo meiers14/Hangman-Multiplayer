@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { LobbyService } from '../services/lobby.service';
 import { Lobby } from '../models/lobby';
 import { Difficulty } from '../models/difficulty.enum';
@@ -50,19 +50,18 @@ export class LobbyComponent implements OnInit {
   ngOnInit(): void {
     this.lobbyCode = this.sharedDataService.get('lobbyCode');
     this.username = this.sharedDataService.get('username');
-
-    if (!this.lobbyCode || !this.username) {
-      this.snackBar.open('Fehler: Keine Lobby-Daten gefunden. Bitte erneut versuchen.', 'Schließen', { duration: 3000 });
-      this.router.navigate(['/']);
-      return;
-    }
-
     this.getLobby();
   }
 
   getLobby(): void {
     this.lobbyService.getLobbyByCode(this.lobbyCode).subscribe({
       next: (lobby: Lobby) => {
+        // On refreshing the page
+        if (!lobby || lobby === null) {
+          this.router.navigate(['/']);
+          throw new Error('Lobby ist null oder nicht gefunden');
+        }
+
         console.log(lobby);
         this.lobby = lobby;
 
@@ -149,11 +148,11 @@ export class LobbyComponent implements OnInit {
   }
 
   startGame(): void {
-    if (this.selectedMode && this.players.length >= 2) {
-      this.confirmDifficultyChange();
-    } else {
-      alert('Spielmodus auswählen und mindestens 2 Spieler hinzufügen, um das Spiel zu starten.');
-    }
+    // if (this.selectedMode && this.players.length >= 2) {
+    //   this.confirmDifficultyChange();
+    // }
+    this.confirmDifficultyChange();
+    this.router.navigate(['/game']);
   }
 
   confirmDifficultyChange(): void {

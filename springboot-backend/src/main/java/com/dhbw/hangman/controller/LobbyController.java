@@ -33,7 +33,7 @@ public class LobbyController {
             Lobby lobby = lobbyRepository.findByLobbyCode(lobbyCode);
             return new ResponseEntity<>(lobby, HttpStatus.OK);
         } catch (DataAccessException e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
 
