@@ -51,6 +51,7 @@ export class GameComponent implements OnInit {
 
     this.gameService.messages$.subscribe(message => {
       const timestamp = new Date().toLocaleTimeString();
+      // TODO: Hier muss der Absender der Nachricht (this.username) geändert werden
       this.chatMessages.push({ sender: this.username, message: message.message, timestamp });
     });
   }
