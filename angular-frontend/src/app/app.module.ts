@@ -3,6 +3,8 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
@@ -12,7 +14,7 @@ import { LobbyComponent } from './lobby/lobby.component';
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'game', component: GameComponent },
-  { path: ':lobbyCode', component: LobbyComponent }, // Lobby-Code als Pfad
+  { path: 'lobby', component: LobbyComponent },
   // Weitere Routen hier hinzufügen
 ];
 
@@ -27,9 +29,12 @@ const routes: Routes = [
     BrowserModule,
     FormsModule,
     RouterModule.forRoot(routes),
-    CommonModule
+    CommonModule,
+    HttpClientModule
   ],
-  providers: [],
+  providers: [
+    provideAnimationsAsync()
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

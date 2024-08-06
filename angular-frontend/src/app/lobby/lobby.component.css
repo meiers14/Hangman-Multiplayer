@@ -41,8 +41,10 @@
     padding: 10px;
     font-size: 1.2rem;
     color: #333333;
-    display: inline-block; /* Stellt sicher, dass die Breite nur die notwendige Breite einnimmt */
-    height: 40px; /* Einheitliche Höhe für Spieler-Elemente */
+    display: inline-block;
+    /* Stellt sicher, dass die Breite nur die notwendige Breite einnimmt */
+    height: 40px;
+    /* Einheitliche Höhe für Spieler-Elemente */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -66,7 +68,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 40px; /* Einheitliche Höhe */
+    height: 40px;
+    /* Einheitliche Höhe */
 }
 
 .copy-btn:hover {
@@ -120,8 +123,10 @@
     transition: border-color 0.3s;
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Vertikale Zentrierung */
-    align-items: center; /* Horizontale Zentrierung */
+    justify-content: center;
+    /* Vertikale Zentrierung */
+    align-items: center;
+    /* Horizontale Zentrierung */
     text-align: center;
     padding: 10px;
     box-sizing: border-box;
@@ -129,9 +134,12 @@
 
 .card-img-top {
     width: auto;
-    height: auto; /* Proportional skalieren */
-    max-height: 150px; /* Maximale Höhe festlegen */
-    object-fit: contain; /* Bild proportional skalieren und anpassen */
+    height: auto;
+    /* Proportional skalieren */
+    max-height: 150px;
+    /* Maximale Höhe festlegen */
+    object-fit: contain;
+    /* Bild proportional skalieren und anpassen */
 }
 
 .card-body {
@@ -181,7 +189,8 @@
 }
 
 button {
-    height: 40px; /* Einheitliche Höhe für alle Buttons */
+    height: 40px;
+    /* Einheitliche Höhe für alle Buttons */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -221,4 +230,13 @@ button:disabled {
     border-color: #007bff;
     color: #ffffff;
     font-size: 1.5rem;
+}
+
+.highlight {
+    background-color: yellow;
+}
+
+.disabled {
+    pointer-events: none;
+    opacity: 0.5;
 }
