@@ -47,6 +47,12 @@ public class Word {
         this.word = word;
     }
 
+    public Word(Difficulty wordDifficulty, String word) {
+        super();
+        this.wordDifficulty = wordDifficulty;
+        this.word = word;
+    }
+
     public Word() {
         super();
     }
