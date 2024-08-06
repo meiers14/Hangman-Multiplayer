@@ -65,15 +65,15 @@ public class LobbyController {
             Lobby lobby = lobbyRepository.findByLobbyCode(lobbyCode);
 
             if (lobby == null) {
-                return new ResponseEntity<>("Ungültiger Lobby-Code", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>("Fehler: Ungültiger Lobby-Code", HttpStatus.NOT_FOUND);
             }
 
             if (lobby.getPlayerB() != null && !lobby.getPlayerB().isEmpty()) {
-                return new ResponseEntity<>("Lobby ist voll", HttpStatus.CONFLICT);
+                return new ResponseEntity<>("Fehler: Lobby ist voll", HttpStatus.CONFLICT);
             }
 
             if (playerB.equals(lobby.getPlayerA())) {
-                return new ResponseEntity<>("Spielername bereits vergeben", HttpStatus.CONFLICT);
+                return new ResponseEntity<>("Fehler: Spielername bereits vergeben", HttpStatus.CONFLICT);
             }
             
             lobby.setPlayerB(playerB);
@@ -89,7 +89,7 @@ public class LobbyController {
         try {
             Lobby lobby = lobbyRepository.findByLobbyCode(lobbyCode);
             if (lobby == null) {
-                return new ResponseEntity<>("Lobby nicht gefunden", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>("Fehler: Lobby nicht gefunden", HttpStatus.NOT_FOUND);
             }
 
             if (playerName.equals(lobby.getPlayerA())) {
@@ -98,16 +98,16 @@ public class LobbyController {
                     lobby.setPlayerB(null);
                 } else {
                     lobbyRepository.delete(lobby);
-                    return new ResponseEntity<>("Lobby wurde entfernt", HttpStatus.OK);
+                    return new ResponseEntity<>("Lobby erfolgreich verlassen", HttpStatus.OK);
                 }
             } else if (playerName.equals(lobby.getPlayerB())) {
                 lobby.setPlayerB(null);
             } else {
-                return new ResponseEntity<>("Spieler nicht in der Lobby gefunden", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("Fehler: Spieler nicht in der Lobby gefunden", HttpStatus.BAD_REQUEST);
             }
 
             lobbyRepository.save(lobby);
-            return new ResponseEntity<>("Spieler wurde aus der Lobby entfernt", HttpStatus.OK);
+            return new ResponseEntity<>("Lobby erfolgreich verlassen", HttpStatus.OK);
         } catch (DataAccessException e) {
             return new ResponseEntity<>("Fehler beim Aktualisieren der Lobby", HttpStatus.BAD_REQUEST);
         }
@@ -118,14 +118,14 @@ public class LobbyController {
         try {
             Lobby lobby = lobbyRepository.findByLobbyCode(lobbyCode);
             if (lobby == null) {
-                return new ResponseEntity<>("Lobby nicht gefunden", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>("Fehler: Lobby nicht gefunden", HttpStatus.NOT_FOUND);
             }
 
             lobby.setLobbyDifficulty(lobbyDifficulty);
             lobbyRepository.save(lobby);
-            return new ResponseEntity<>("Lobby-Schwierigkeitsgrad wurde aktualisiert", HttpStatus.OK);
+            return new ResponseEntity<>("Schwierigkeitsgrad erfolgreich aktualisiert", HttpStatus.OK);
         } catch (DataAccessException e) {
-            return new ResponseEntity<>("Fehler beim Aktualisieren des Lobby-Schwierigkeitsgrades", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Fehler beim Aktualisieren des Schwierigkeitsgrades", HttpStatus.BAD_REQUEST);
         }
     }
 }

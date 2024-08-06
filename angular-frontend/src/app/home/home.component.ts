@@ -52,7 +52,7 @@ export class HomeComponent {
         console.log(response);
         this.sharedDataService.set('lobbyCode', this.lobbyCode);
         this.sharedDataService.set('username', this.username);
-        this.router.navigate(['/lobby'], { state: { lobbyCode: this.lobbyCode, username: this.username } });
+        this.router.navigate(['/lobby']);
         this.snackBar.open(response, 'Schließen', { duration: 3000 });
       },
       error: (error) => {
