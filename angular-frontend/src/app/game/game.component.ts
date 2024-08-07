@@ -24,7 +24,7 @@ export class GameComponent implements OnInit {
   guessedLetters: string[] = [];
   words: string[] = ['ANGULAR', 'TYPESCRIPT', 'COMPONENT', 'SERVICE', 'DIRECTIVE'];
   word: string = '';
-  displayWord: string[] = [];  // String array ohne undefined
+  displayWord: string[] = [];
   remainingLives: number = 6;
   hangmanImage: string = 'assets/hangman0.png';
   gameOver: boolean = false;
@@ -36,8 +36,8 @@ export class GameComponent implements OnInit {
   chatMessages: { sender: string, message: string, timestamp: string }[] = [];
   newMessage: string = '';
 
-  currentPlayer: string = '';  // Der Spieler, der gerade am Zug ist
-  isCurrentPlayer: boolean = false;  // Ist dieser Spieler aktuell am Zug?
+  currentPlayer: string = '';
+  isCurrentPlayer: boolean = false;
 
   constructor(
       private router: Router,
@@ -86,21 +86,15 @@ export class GameComponent implements OnInit {
           this.difficulty = lobby.lobbyDifficulty;
         }
 
-        // Setze den aktuellen Spieler, der gerade am Zug ist
         this.currentPlayer = this.players[0] || '';
         this.isCurrentPlayer = (this.username === this.currentPlayer);
       },
       error: (error) => {
         console.error('Fehler:', error);
-        if (error.error) {
-          this.snackBar.open(error.error, 'Schließen', { duration: 3000 });
-        } else {
-          this.snackBar.open('Fehler beim Abrufen der Lobby', 'Schließen', { duration: 3000 });
-        }
+        this.snackBar.open('Fehler beim Abrufen der Lobby', 'Schließen', { duration: 3000 });
       }
     });
   }
-
 
   @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
@@ -109,7 +103,7 @@ export class GameComponent implements OnInit {
     }
 
     if (!this.isCurrentPlayer || this.gameOver || this.gameWon) {
-      return;  // Blockiere Eingaben, wenn der aktuelle Spieler nicht am Zug ist oder das Spiel vorbei ist
+      return;
     }
 
     const letter = event.key.toUpperCase();
@@ -145,7 +139,7 @@ export class GameComponent implements OnInit {
         this.gameOver = true;
       }
       this.updateHangmanImage();
-      this.switchPlayer();  // Wechselt den Zug zum anderen Spieler
+      this.switchPlayer();
       this.sendGameUpdate();
     }
   }
@@ -154,7 +148,7 @@ export class GameComponent implements OnInit {
     if (this.displayWord.join('') === this.word) {
       this.gameWon = true;
       this.wins++;
-      this.switchPlayer();  // Wechselt den Zug zum anderen Spieler
+      this.switchPlayer();
       this.sendGameUpdate();
     }
   }
@@ -207,7 +201,7 @@ export class GameComponent implements OnInit {
       currentRound: this.currentRound,
       maxRounds: this.maxRounds,
       guessedLetters: this.guessedLetters,
-      currentPlayer: this.currentPlayer  // Den aktuellen Spieler hinzufügen
+      currentPlayer: this.currentPlayer
     };
     this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, gameState);
   }
@@ -216,21 +210,20 @@ export class GameComponent implements OnInit {
     if (gameState) {
       this.word = gameState.word || this.word;
       this.displayWord = gameState.displayWord || this.displayWord;
-      this.remainingLives = gameState.remainingLives || this.remainingLives;
-      this.gameOver = gameState.gameOver || this.gameOver;
-      this.gameWon = gameState.gameWon || this.gameWon;
-      this.currentRound = gameState.currentRound || this.currentRound;
-      this.maxRounds = gameState.maxRounds || this.maxRounds;
+      this.remainingLives = gameState.remainingLives !== undefined ? gameState.remainingLives : this.remainingLives;
+      this.gameOver = gameState.gameOver !== undefined ? gameState.gameOver : this.gameOver;
+      this.gameWon = gameState.gameWon !== undefined ? gameState.gameWon : this.gameWon;
+      this.currentRound = gameState.currentRound !== undefined ? gameState.currentRound : this.currentRound;
+      this.maxRounds = gameState.maxRounds !== undefined ? gameState.maxRounds : this.maxRounds;
       this.guessedLetters = gameState.guessedLetters || this.guessedLetters;
-      this.currentPlayer = gameState.currentPlayer || this.currentPlayer;  // Den aktuellen Spieler aktualisieren
+      this.currentPlayer = gameState.currentPlayer || this.currentPlayer;
 
-      // Der aktuelle Spieler setzen, falls der Wert undefined ist
       this.isCurrentPlayer = (this.username === this.currentPlayer);
+      this.updateHangmanImage();
     }
   }
 
   private switchPlayer() {
-    // Wechselt den aktuellen Spieler zum anderen Spieler
     this.currentPlayer = this.players.find(player => player !== this.currentPlayer) || this.currentPlayer;
     this.isCurrentPlayer = (this.username === this.currentPlayer);
   }
