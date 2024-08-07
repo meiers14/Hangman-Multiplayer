@@ -8,9 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class LobbyController {
@@ -19,7 +21,10 @@ public class LobbyController {
     private LobbyService lobbyService;
 
     @Autowired
-    LobbyRepository lobbyRepository;
+    private LobbyRepository lobbyRepository;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     @GetMapping("/allLobbys")
     public ResponseEntity<List<Lobby>> getAllLobbys() {
@@ -63,21 +68,18 @@ public class LobbyController {
     public ResponseEntity<String> joinLobby(@RequestParam String lobbyCode, @RequestParam String playerB) {
         try {
             Lobby lobby = lobbyRepository.findByLobbyCode(lobbyCode);
-
             if (lobby == null) {
                 return new ResponseEntity<>("Fehler: Ungültiger Lobby-Code", HttpStatus.NOT_FOUND);
             }
-
             if (lobby.getPlayerB() != null && !lobby.getPlayerB().isEmpty()) {
                 return new ResponseEntity<>("Fehler: Lobby ist voll", HttpStatus.CONFLICT);
             }
-
             if (playerB.equals(lobby.getPlayerA())) {
                 return new ResponseEntity<>("Fehler: Spielername bereits vergeben", HttpStatus.CONFLICT);
             }
-            
             lobby.setPlayerB(playerB);
             lobbyRepository.save(lobby);
+            messagingTemplate.convertAndSend("/topic/lobby/" + lobbyCode, lobby);
             return new ResponseEntity<>("Lobby erfolgreich beigetreten", HttpStatus.OK);
         } catch (DataAccessException e) {
             return new ResponseEntity<>("Fehler beim Aktualisieren der Lobby", HttpStatus.BAD_REQUEST);
@@ -91,13 +93,13 @@ public class LobbyController {
             if (lobby == null) {
                 return new ResponseEntity<>("Fehler: Lobby nicht gefunden", HttpStatus.NOT_FOUND);
             }
-
             if (playerName.equals(lobby.getPlayerA())) {
                 if (lobby.getPlayerB() != null) {
                     lobby.setPlayerA(lobby.getPlayerB());
                     lobby.setPlayerB(null);
                 } else {
                     lobbyRepository.delete(lobby);
+                    messagingTemplate.convertAndSend("/topic/lobby/" + lobbyCode, Optional.empty());
                     return new ResponseEntity<>("Lobby erfolgreich verlassen", HttpStatus.OK);
                 }
             } else if (playerName.equals(lobby.getPlayerB())) {
@@ -105,8 +107,8 @@ public class LobbyController {
             } else {
                 return new ResponseEntity<>("Fehler: Spieler nicht in der Lobby gefunden", HttpStatus.BAD_REQUEST);
             }
-
             lobbyRepository.save(lobby);
+            messagingTemplate.convertAndSend("/topic/lobby/" + lobbyCode, lobby);
             return new ResponseEntity<>("Lobby erfolgreich verlassen", HttpStatus.OK);
         } catch (DataAccessException e) {
             return new ResponseEntity<>("Fehler beim Aktualisieren der Lobby", HttpStatus.BAD_REQUEST);
@@ -120,9 +122,9 @@ public class LobbyController {
             if (lobby == null) {
                 return new ResponseEntity<>("Fehler: Lobby nicht gefunden", HttpStatus.NOT_FOUND);
             }
-
             lobby.setLobbyDifficulty(lobbyDifficulty);
             lobbyRepository.save(lobby);
+            messagingTemplate.convertAndSend("/topic/lobby/" + lobbyCode, lobby);
             return new ResponseEntity<>("Schwierigkeitsgrad erfolgreich aktualisiert", HttpStatus.OK);
         } catch (DataAccessException e) {
             return new ResponseEntity<>("Fehler beim Aktualisieren des Schwierigkeitsgrades", HttpStatus.BAD_REQUEST);

@@ -1,5 +1,5 @@
 import { Component, HostListener, OnInit } from '@angular/core';
-import { GameService } from '../services/game.service';
+import { WebsocketService } from '../services/websocket.service';
 import { Lobby } from '../models/lobby';
 import { Difficulty } from '../models/difficulty.enum';
 import { LobbyService } from '../services/lobby.service';
@@ -13,16 +13,13 @@ import { SharedDataService } from '../shared-data.service';
   styleUrls: ['./game.component.css']
 })
 export class GameComponent implements OnInit {
-  // Shared Data
   lobbyCode: string = '';
   username: string = '';
 
-  // Database
   lobby!: Lobby;
   difficulty!: Difficulty;
   players: string[] = [];
 
-  // Game
   alphabet: string[] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
   guessedLetters: string[] = [];
   words: string[] = ['ANGULAR', 'TYPESCRIPT', 'COMPONENT', 'SERVICE', 'DIRECTIVE'];
@@ -36,56 +33,65 @@ export class GameComponent implements OnInit {
   maxRounds: number = 5;
   wins: number = 0;
 
-  // Chat
   chatMessages: { sender: string, message: string, timestamp: string }[] = [];
   newMessage: string = '';
 
-  constructor(private router: Router, private lobbyService: LobbyService, private snackBar: MatSnackBar, private sharedDataService: SharedDataService, private gameService: GameService) { }
+  currentPlayer: string = '';
+  isCurrentPlayer: boolean = false;
+
+  constructor(
+      private router: Router,
+      private lobbyService: LobbyService,
+      private snackBar: MatSnackBar,
+      private sharedDataService: SharedDataService,
+      private websocketService: WebsocketService
+  ) {}
 
   ngOnInit() {
     this.lobbyCode = this.sharedDataService.get('lobbyCode');
     this.username = this.sharedDataService.get('username');
     this.getLobby();
-
     this.startNewRound();
 
-    this.gameService.messages$.subscribe(message => {
-      const timestamp = new Date().toLocaleTimeString();
-      // TODO: Hier muss der Absender der Nachricht (this.username) geändert werden
-      this.chatMessages.push({ sender: this.username, message: message.message, timestamp });
+    this.websocketService.isConnected().subscribe(connected => {
+      if (connected) {
+        this.websocketService.subscribeToChat(this.lobbyCode, (message) => {
+          const timestamp = new Date().toLocaleTimeString();
+          this.chatMessages.push({
+            sender: message.username || 'Unknown',
+            message: message.message,
+            timestamp
+          });
+        });
+
+        this.websocketService.subscribeToGame(this.lobbyCode, (gameState) => {
+          this.updateGameState(gameState);
+        });
+      }
     });
   }
 
   getLobby(): void {
     this.lobbyService.getLobbyByCode(this.lobbyCode).subscribe({
       next: (lobby: Lobby) => {
-        // On refreshing the page
         if (!lobby || lobby === null) {
           this.router.navigate(['/']);
           throw new Error('Lobby ist null oder nicht gefunden');
         }
 
-        console.log(lobby);
         this.lobby = lobby;
-
-        if (this.lobby.playerA && this.lobby.playerA != '') {
-          this.players.push(this.lobby.playerA);
-        }
-        if (this.lobby.playerB && this.lobby.playerB.trim() != '') {
-          this.players.push(this.lobby.playerB);
-        }
+        this.players = [lobby.playerA, lobby.playerB].filter((p): p is string => p !== undefined);
 
         if (lobby.lobbyDifficulty) {
           this.difficulty = lobby.lobbyDifficulty;
         }
+
+        this.currentPlayer = this.players[0] || '';
+        this.isCurrentPlayer = (this.username === this.currentPlayer);
       },
       error: (error) => {
         console.error('Fehler:', error);
-        if (error.error) {
-          this.snackBar.open(error.error, 'Schließen', { duration: 3000 });
-        } else {
-          this.snackBar.open('Fehler beim Abrufen der Lobby', 'Schließen', { duration: 3000 });
-        }
+        this.snackBar.open('Fehler beim Abrufen der Lobby', 'Schließen', { duration: 3000 });
       }
     });
   }
@@ -95,8 +101,13 @@ export class GameComponent implements OnInit {
     if ((<HTMLElement>event.target).tagName === 'INPUT') {
       return;
     }
+
+    if (!this.isCurrentPlayer || this.gameOver || this.gameWon) {
+      return;
+    }
+
     const letter = event.key.toUpperCase();
-    if (this.alphabet.includes(letter) && !this.guessedLetters.includes(letter) && !this.gameOver && !this.gameWon) {
+    if (this.alphabet.includes(letter) && !this.guessedLetters.includes(letter)) {
       this.guessLetter(letter);
     }
   }
@@ -111,7 +122,7 @@ export class GameComponent implements OnInit {
   }
 
   guessLetter(letter: string) {
-    if (this.gameOver || this.gameWon) return;
+    if (!this.isCurrentPlayer || this.gameOver || this.gameWon) return;
 
     this.guessedLetters.push(letter);
     if (this.word.includes(letter)) {
@@ -120,6 +131,8 @@ export class GameComponent implements OnInit {
           this.displayWord[i] = letter;
         }
       }
+      this.updateHangmanImage();
+      this.sendGameUpdate();
       this.checkWin();
     } else {
       this.remainingLives--;
@@ -128,6 +141,8 @@ export class GameComponent implements OnInit {
         this.gameOver = true;
       }
       this.updateHangmanImage();
+      this.switchPlayer();
+      this.sendGameUpdate();
     }
   }
 
@@ -135,6 +150,8 @@ export class GameComponent implements OnInit {
     if (this.displayWord.join('') === this.word) {
       this.gameWon = true;
       this.wins++;
+      this.switchPlayer();
+      this.sendGameUpdate();
     }
   }
 
@@ -155,18 +172,61 @@ export class GameComponent implements OnInit {
     this.gameOver = false;
     this.gameWon = false;
     this.word = this.words[Math.floor(Math.random() * this.words.length)];
-    this.displayWord = Array(this.word.length).fill('_');
+    this.displayWord = Array(this.word.length).fill('_') as string[];
     this.currentRound++;
+    this.sendGameUpdate();
   }
 
   sendMessage() {
     if (this.newMessage.trim()) {
-      this.gameService.sendMessage(this.newMessage);
+      const chatMessage = {
+        username: this.username,
+        message: this.newMessage,
+        lobbyCode: this.lobbyCode
+      };
+      this.websocketService.sendMessage('/app/send', chatMessage);
       this.newMessage = '';
     }
   }
 
   leaveGame() {
     this.router.navigate(['/lobby']);
+  }
+
+  private sendGameUpdate() {
+    const gameState = {
+      word: this.word,
+      displayWord: this.displayWord,
+      remainingLives: this.remainingLives,
+      gameOver: this.gameOver,
+      gameWon: this.gameWon,
+      currentRound: this.currentRound,
+      maxRounds: this.maxRounds,
+      guessedLetters: this.guessedLetters,
+      currentPlayer: this.currentPlayer
+    };
+    this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, gameState);
+  }
+
+  private updateGameState(gameState: any) {
+    if (gameState) {
+      this.word = gameState.word || this.word;
+      this.displayWord = gameState.displayWord || this.displayWord;
+      this.remainingLives = gameState.remainingLives !== undefined ? gameState.remainingLives : this.remainingLives;
+      this.gameOver = gameState.gameOver !== undefined ? gameState.gameOver : this.gameOver;
+      this.gameWon = gameState.gameWon !== undefined ? gameState.gameWon : this.gameWon;
+      this.currentRound = gameState.currentRound !== undefined ? gameState.currentRound : this.currentRound;
+      this.maxRounds = gameState.maxRounds !== undefined ? gameState.maxRounds : this.maxRounds;
+      this.guessedLetters = gameState.guessedLetters || this.guessedLetters;
+      this.currentPlayer = gameState.currentPlayer || this.currentPlayer;
+
+      this.isCurrentPlayer = (this.username === this.currentPlayer);
+      this.updateHangmanImage();
+    }
+  }
+
+  private switchPlayer() {
+    this.currentPlayer = this.players.find(player => player !== this.currentPlayer) || this.currentPlayer;
+    this.isCurrentPlayer = (this.username === this.currentPlayer);
   }
 }
