@@ -5,6 +5,7 @@ import { Lobby } from '../models/lobby';
 import { Difficulty } from '../models/difficulty.enum';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SharedDataService } from '../shared-data.service';
+import { WebsocketService } from '../services/websocket.service';
 
 @Component({
   selector: 'app-lobby',
@@ -45,12 +46,13 @@ export class LobbyComponent implements OnInit {
     }
   ];
 
-  constructor(private router: Router, private lobbyService: LobbyService, private snackBar: MatSnackBar, private sharedDataService: SharedDataService) { }
+  constructor(private router: Router, private lobbyService: LobbyService, private snackBar: MatSnackBar, private sharedDataService: SharedDataService, private websocketService: WebsocketService) { }
 
   ngOnInit(): void {
     this.lobbyCode = this.sharedDataService.get('lobbyCode');
     this.username = this.sharedDataService.get('username');
     this.getLobby();
+    this.connectToLobby(this.lobbyCode);
   }
 
   getLobby(): void {
@@ -187,6 +189,13 @@ export class LobbyComponent implements OnInit {
           this.snackBar.open('Fehler beim Beitreten der Lobby', 'Schließen', { duration: 3000 });
         }
       }
+    });
+  }
+
+  connectToLobby(lobbyCode: string): void {
+    this.websocketService.subscribeToLobby(lobbyCode, (lobby) => {
+      console.log('Lobby updated:', lobby);
+      // Handle the updated lobby state
     });
   }
 }

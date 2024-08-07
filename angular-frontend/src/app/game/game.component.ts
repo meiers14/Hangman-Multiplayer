@@ -1,5 +1,5 @@
 import { Component, HostListener, OnInit } from '@angular/core';
-import { GameService } from '../services/game.service';
+import { WebsocketService } from '../services/websocket.service';
 import { Lobby } from '../models/lobby';
 import { Difficulty } from '../models/difficulty.enum';
 import { LobbyService } from '../services/lobby.service';
@@ -41,7 +41,7 @@ export class GameComponent implements OnInit {
       private lobbyService: LobbyService,
       private snackBar: MatSnackBar,
       private sharedDataService: SharedDataService,
-      private gameService: GameService
+      private websocketService: WebsocketService
   ) {}
 
   ngOnInit() {
@@ -51,9 +51,9 @@ export class GameComponent implements OnInit {
 
     this.startNewRound();
 
-    this.gameService.isConnected().subscribe(connected => {
+    this.websocketService.isConnected().subscribe(connected => {
       if (connected) {
-        this.gameService.subscribe(this.lobbyCode, (message) => {
+        this.websocketService.subscribeToChat(this.lobbyCode, (message) => {
           console.log(`Message received for lobby code: ${this.lobbyCode}`); // Konsolenausgabe für den Lobby-Code
           const timestamp = new Date().toLocaleTimeString();
           this.chatMessages.push({
@@ -175,7 +175,7 @@ export class GameComponent implements OnInit {
         lobbyCode: this.lobbyCode
       };
       console.log(`Sending message to lobby code: ${this.lobbyCode}`, chatMessage); // Debugging-Ausgabe
-      this.gameService.sendMessage('/app/send', chatMessage);
+      this.websocketService.sendMessage('/app/send', chatMessage);
       this.newMessage = '';
     }
   }
