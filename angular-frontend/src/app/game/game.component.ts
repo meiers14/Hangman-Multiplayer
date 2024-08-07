@@ -131,6 +131,8 @@ export class GameComponent implements OnInit {
           this.displayWord[i] = letter;
         }
       }
+      this.updateHangmanImage();
+      this.sendGameUpdate();
       this.checkWin();
     } else {
       this.remainingLives--;
