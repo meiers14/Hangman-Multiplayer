@@ -53,6 +53,14 @@ export class WebsocketService {
     });
   }
 
+  subscribeToGame(lobbyCode: string, callback: (message: any) => void): StompSubscription {
+    const destination = `/topic/game/${lobbyCode}`;
+    return this.client.subscribe(destination, message => {
+      console.log('Received game update:', message.body);
+      callback(JSON.parse(message.body));
+    });
+  }
+
   sendMessage(destination: string, body: any) {
     this.client.publish({
       destination: destination,
