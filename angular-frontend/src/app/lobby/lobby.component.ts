@@ -1,10 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { LobbyService } from '../services/lobby.service';
-import { Lobby } from '../models/lobby';
-import { Difficulty } from '../models/difficulty.enum';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SharedDataService } from '../shared-data.service';
+
+// Models
+import { Lobby } from '../models/lobby';
+import { Difficulty } from '../models/difficulty.enum';
+
+// Services
+import { LobbyService } from '../services/lobby.service';
 import { WebsocketService } from '../services/websocket.service';
 
 @Component({
@@ -57,7 +61,9 @@ export class LobbyComponent implements OnInit {
     ngOnInit(): void {
         this.lobbyCode = this.sharedDataService.get('lobbyCode');
         this.username = this.sharedDataService.get('username');
+
         this.getLobby();
+
         this.websocketService.isConnected().subscribe(connected => {
             if (connected) {
                 this.websocketService.subscribeToLobby(this.lobbyCode, (lobby: Lobby) => {
@@ -67,31 +73,12 @@ export class LobbyComponent implements OnInit {
         });
     }
 
-    handleLobbyUpdate(lobby: Lobby): void {
-        console.log('Lobby updated:', lobby);
-        this.lobby = lobby;
-
-        // Clear the players array before adding updated players
-        this.players = [];
-        if (this.lobby.playerA) {
-            this.players.push(this.lobby.playerA);
-        }
-        if (this.lobby.playerB) {
-            this.players.push(this.lobby.playerB);
-        }
-
-        this.determineRole();
-
-        if (this.lobby.lobbyDifficulty) {
-            this.selectedDifficultyValue = this.difficultyToNumber(this.lobby.lobbyDifficulty);
-            this.updateDifficulty();
-        }
-    }
-
     getLobby(): void {
+        // API call returns Lobby object
         this.lobbyService.getLobbyByCode(this.lobbyCode).subscribe({
             next: (lobby: Lobby) => {
-                if (!lobby) {
+                if (!lobby || lobby === null) {
+                    // Navigate to Home Component if no lobby object was found
                     this.router.navigate(['/']);
                     throw new Error('Lobby ist null oder nicht gefunden');
                 }
@@ -104,6 +91,31 @@ export class LobbyComponent implements OnInit {
         });
     }
 
+    handleLobbyUpdate(lobby: Lobby): void {
+        console.log('Lobby updated:', lobby);
+        
+        // Set lobby
+        this.lobby = lobby;
+
+        // Set players
+        this.players = [];
+        if (this.lobby.playerA) {
+            this.players.push(this.lobby.playerA);
+        }
+        if (this.lobby.playerB) {
+            this.players.push(this.lobby.playerB);
+        }
+
+        // Set player role
+        this.determineRole();
+
+        // Set difficulty
+        if (this.lobby.lobbyDifficulty) {
+            this.selectedDifficultyValue = this.difficultyToNumber(this.lobby.lobbyDifficulty);
+            this.updateDifficulty();
+        }
+    }
+
     determineRole(): void {
         if (this.lobby.playerA === this.username) {
             this.role = 'A';
@@ -113,6 +125,7 @@ export class LobbyComponent implements OnInit {
     }
 
     difficultyToNumber(difficulty: Difficulty): number {
+        // Cast difficulty object to number for slider
         switch (difficulty) {
             case Difficulty.LEICHT:
                 return 0;
@@ -126,6 +139,7 @@ export class LobbyComponent implements OnInit {
     }
 
     updateDifficulty(): void {
+        // Cast difficulty number to object, update locally
         switch (this.selectedDifficultyValue) {
             case 0:
                 this.selectedDifficultyLabel = 'LEICHT';
@@ -147,6 +161,7 @@ export class LobbyComponent implements OnInit {
     }
 
     copyLobbyCode(): void {
+        // Copy lobby code into buffer
         navigator.clipboard.writeText(this.lobbyCode).then(() => {
             this.snackBar.open('Lobby-Code kopiert: ' + this.lobbyCode, 'Schließen', { duration: 3000 });
         });
@@ -158,10 +173,13 @@ export class LobbyComponent implements OnInit {
 
     startGame(): void {
         this.confirmDifficultyChange();
+        
+        // Navigate to Game Component
         this.router.navigate(['/game']);
     }
 
     confirmDifficultyChange(): void {
+        // API call updates difficulty in database
         this.lobbyService.updateDifficulty(this.lobbyCode, this.difficulty).subscribe({
             next: (response: string) => {
                 console.log(response);
@@ -175,9 +193,12 @@ export class LobbyComponent implements OnInit {
     }
 
     leaveLobby(): void {
+        // API call removes player from current lobby, deletes lobby if no players after
         this.lobbyService.leaveLobby(this.lobbyCode, this.username).subscribe({
             next: (response: string) => {
                 console.log(response);
+
+                // Navigates back to Home Component
                 this.router.navigate(['/']);
                 this.snackBar.open(response, 'Schließen', { duration: 3000 });
             },
