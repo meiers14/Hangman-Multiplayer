@@ -10,6 +10,9 @@
       </div>
     </div>
     <div class="lobby-code-section">
+      <button class="btn invite-btn" (click)="copyInviteLink()" [disabled]="players.length > 1">
+        <i class="bi bi-person-plus"></i>
+      </button>
       <button class="btn copy-btn" (click)="copyLobbyCode()">
         <i class="fa fa-copy"></i> {{ lobbyCode }}
       </button>

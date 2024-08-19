@@ -240,3 +240,26 @@ button:disabled {
     pointer-events: none;
     opacity: 0.5;
 }
+
+.invite-btn {
+    background-color: #007bff; /* Blaue Hintergrundfarbe */
+    border: 1px solid #007bff; /* Blaue Randfarbe */
+    color: #ffffff; /* Weiße Schriftfarbe (falls Text verwendet wird) */
+    padding: 10px; /* Padding hinzufügen, damit der Button die gleiche Größe wie die anderen Buttons hat */
+    border-radius: 5px; /* Gleiche Abrundung wie bei anderen Buttons */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px; /* Gleiche Höhe wie die anderen Buttons */
+  }
+  
+  .invite-btn i {
+    font-size: 1.5em; /* Größe des Icons */
+    color: #ffffff; /* Weißes Icon */
+  }
+  
+  .invite-btn:hover {
+    background-color: #0056b3; /* Dunklere blaue Farbe beim Hover */
+    border-color: #0056b3; /* Dunklere blaue Randfarbe beim Hover */
+  }

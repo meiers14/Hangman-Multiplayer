@@ -167,6 +167,14 @@ export class LobbyComponent implements OnInit {
         });
     }
 
+    copyInviteLink(): void {
+        // Copy URL with lobby code for invitation
+        const inviteLink = `${window.location.origin}/?code=${this.lobbyCode}`;
+        navigator.clipboard.writeText(inviteLink).then(() => {
+            this.snackBar.open('Einladungslink kopiert: ' + inviteLink, 'Schließen', { duration: 3000 });
+        });
+    }    
+
     selectMode(mode: string): void {
         this.selectedMode = mode;
     }
@@ -175,7 +183,8 @@ export class LobbyComponent implements OnInit {
         this.confirmDifficultyChange();
         
         // Navigate to Game Component
-        this.router.navigate(['/game']);
+        this.router.navigate(['/game'], { queryParams: { code: this.lobbyCode } });
+
     }
 
     confirmDifficultyChange(): void {

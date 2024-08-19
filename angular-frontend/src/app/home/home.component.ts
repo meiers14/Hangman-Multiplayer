@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SharedDataService } from '../shared-data.service';
 
@@ -15,12 +15,28 @@ import { HomeService } from '../services/home.service';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   // Shared Data
   lobbyCode: string = '';
   username: string = '';
 
-  constructor(private router: Router, private homeService: HomeService, private snackBar: MatSnackBar, private sharedDataService: SharedDataService) { }
+  constructor(
+    private router: Router, 
+    private homeService: HomeService, 
+    private snackBar: MatSnackBar, 
+    private sharedDataService: SharedDataService,
+    private route: ActivatedRoute
+  ) { }
+
+  ngOnInit(): void {
+    // Checks if URL contains a lobby code as parameter
+    this.route.queryParams.subscribe(params => {
+      const code = params['code'];
+      if (code) {
+        this.lobbyCode = code;
+      }
+    });
+  }
 
   createLobby(): void {
     // Create new lobby object
@@ -43,7 +59,7 @@ export class HomeComponent {
           this.sharedDataService.set('username', this.username);
           
           // Navigate to Lobby Component
-          this.router.navigate(['/lobby'], { state: { lobbyCode: this.lobbyCode, username: this.username } });
+          this.router.navigate(['/lobby'], { queryParams: { code: this.lobbyCode} });
           this.snackBar.open('Neue Lobby erfolgreich erstellt', 'Schließen', { duration: 3000 });
         }
       },
@@ -69,7 +85,7 @@ export class HomeComponent {
         this.sharedDataService.set('username', this.username);
 
         // Navigate to Lobby Component
-        this.router.navigate(['/lobby']);
+        this.router.navigate(['/lobby'], { queryParams: { code: this.lobbyCode} });
         this.snackBar.open(response, 'Schließen', { duration: 3000 });
       },
       error: (error) => {

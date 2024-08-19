@@ -226,7 +226,8 @@ export class GameComponent implements OnInit {
   }
 
   leaveGame() {
-    this.router.navigate(['/lobby']);
+    this.router.navigate(['/lobby'], { queryParams: { lobbyCode: this.lobbyCode } });
+
   }
 
   private sendGameUpdate() {
