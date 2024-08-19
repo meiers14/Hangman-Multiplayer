@@ -3,6 +3,7 @@ import { WebsocketService } from '../services/websocket.service';
 import { Lobby } from '../models/lobby';
 import { Difficulty } from '../models/difficulty.enum';
 import { LobbyService } from '../services/lobby.service';
+import { GameService } from '../services/game.service';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SharedDataService } from '../shared-data.service';
@@ -13,35 +14,44 @@ import { SharedDataService } from '../shared-data.service';
   styleUrls: ['./game.component.css']
 })
 export class GameComponent implements OnInit {
+  // Shared Data
   lobbyCode: string = '';
   username: string = '';
 
+  // Database
   lobby!: Lobby;
   difficulty!: Difficulty;
   players: string[] = [];
+  words: string[] = [];
 
+  // Game 
   alphabet: string[] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
   guessedLetters: string[] = [];
-  words: string[] = ['ANGULAR', 'TYPESCRIPT', 'COMPONENT', 'SERVICE', 'DIRECTIVE'];
+
   word: string = '';
   displayWord: string[] = [];
+  
   remainingLives: number = 6;
   hangmanImage: string = 'assets/hangman0.png';
+
   gameOver: boolean = false;
   gameWon: boolean = false;
-  currentRound: number = 1;
-  maxRounds: number = 5;
-  wins: number = 0;
-
-  chatMessages: { sender: string, message: string, timestamp: string }[] = [];
-  newMessage: string = '';
 
   currentPlayer: string = '';
   isCurrentPlayer: boolean = false;
 
+  currentRound: number = 1;
+  maxRounds: number = 5;
+  wins: number = 0;
+
+  // Chat 
+  chatMessages: { sender: string, message: string, timestamp: string }[] = [];
+  newMessage: string = '';
+
   constructor(
       private router: Router,
       private lobbyService: LobbyService,
+      private gameService: GameService,
       private snackBar: MatSnackBar,
       private sharedDataService: SharedDataService,
       private websocketService: WebsocketService
@@ -86,6 +96,8 @@ export class GameComponent implements OnInit {
           this.difficulty = lobby.lobbyDifficulty;
         }
 
+        this.getWords();
+
         this.currentPlayer = this.players[0] || '';
         this.isCurrentPlayer = (this.username === this.currentPlayer);
       },
@@ -94,6 +106,18 @@ export class GameComponent implements OnInit {
         this.snackBar.open('Fehler beim Abrufen der Lobby', 'Schließen', { duration: 3000 });
       }
     });
+  }
+
+  getWords(): void {
+    this.gameService.getWordsByDifficulty(this.difficulty).subscribe({
+      next: (words) => {
+        this.words = words.map((word: { word: any}) => word.word);
+        this.startNewRound();
+      },
+      error: (error) => {
+        console.error('Fehler beim Abrufen der Wörter:', error);
+      }
+    });  
   }
 
   @HostListener('window:keydown', ['$event'])
@@ -172,6 +196,7 @@ export class GameComponent implements OnInit {
     this.gameOver = false;
     this.gameWon = false;
     this.word = this.words[Math.floor(Math.random() * this.words.length)];
+    console.log(this.word);
     this.displayWord = Array(this.word.length).fill('_') as string[];
     this.currentRound++;
     this.sendGameUpdate();
