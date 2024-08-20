@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { SharedDataService } from '../shared-data.service';
+import { SharedDataService } from '../services/shared-data.service';
 
 // Models
 import { Lobby } from '../models/lobby';

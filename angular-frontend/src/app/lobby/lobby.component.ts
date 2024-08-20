@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { SharedDataService } from '../shared-data.service';
+import { SharedDataService } from '../services/shared-data.service';
 
 // Models
 import { Lobby } from '../models/lobby';
 import { Difficulty } from '../models/difficulty.enum';
+import { GameMode } from '../models/game-mode';
 
 // Services
 import { LobbyService } from '../services/lobby.service';
@@ -26,24 +27,30 @@ export class LobbyComponent implements OnInit {
     difficulty!: Difficulty;
     players: string[] = [];
 
-    // Frontend Component
+    // User Role
     role: string = '';
+
+    // Lobby Settings
     selectedDifficultyValue!: number;
     selectedDifficultyLabel: string = '';
-    selectedMode: string = '';
+    selectedMode: any;
 
-    gameModes = [
+    // Game Modes
+    gameModes: GameMode[] = [
         {
+            id: 1,
             name: 'Hangman Duell Royale',
             description: 'Tritt gegen andere Spieler an und sammle Punkte in mehreren Runden. Der Spieler mit den meisten Punkten gewinnt.',
             image: 'assets/hangman6.png'
         },
         {
+            id: 2,
             name: 'Hangman Challenge Arena',
             description: 'Wähle schwierige Wörter für deinen Gegner und versuche als erster, die erforderliche Punktzahl zu erreichen.',
             image: 'assets/hangman6.png'
         },
         {
+            id: 3,
             name: 'Hangman Kooperationsmission',
             description: 'Arbeite mit anderen Spielern zusammen, um Wörter zu erraten und sammle gemeinsam Punkte, um das Spiel zu gewinnen.',
             image: 'assets/hangman6.png'
@@ -109,6 +116,9 @@ export class LobbyComponent implements OnInit {
         // Set player role
         this.determineRole();
 
+        // Set game mode
+        this.selectMode(2);
+
         // Set difficulty
         if (this.lobby.lobbyDifficulty) {
             this.selectedDifficultyValue = this.difficultyToNumber(this.lobby.lobbyDifficulty);
@@ -128,33 +138,28 @@ export class LobbyComponent implements OnInit {
         // Cast difficulty object to number for slider
         switch (difficulty) {
             case Difficulty.LEICHT:
-                return 0;
-            case Difficulty.MITTEL:
                 return 1;
-            case Difficulty.SCHWER:
+            case Difficulty.MITTEL:
                 return 2;
-            default:
-                return -1;
+            case Difficulty.SCHWER:
+                return 3;
         }
     }
 
     updateDifficulty(): void {
         // Cast difficulty number to object, update locally
         switch (this.selectedDifficultyValue) {
-            case 0:
+            case 1:
                 this.selectedDifficultyLabel = 'LEICHT';
                 this.difficulty = Difficulty.LEICHT;
                 break;
-            case 1:
+            case 2:
                 this.selectedDifficultyLabel = 'MITTEL';
                 this.difficulty = Difficulty.MITTEL;
                 break;
-            case 2:
+            case 3:
                 this.selectedDifficultyLabel = 'SCHWER';
                 this.difficulty = Difficulty.SCHWER;
-                break;
-            default:
-                this.selectedDifficultyLabel = '';
                 break;
         }
         console.log(this.difficulty);
@@ -175,16 +180,26 @@ export class LobbyComponent implements OnInit {
         });
     }    
 
-    selectMode(mode: string): void {
-        this.selectedMode = mode;
+    selectMode(modeId: number): void {
+        this.selectedMode = this.gameModes.find(mode => mode.id === modeId);
+        this.sharedDataService.set('selectedMode', this.selectedMode);
     }
 
     startGame(): void {
         this.confirmDifficultyChange();
         
         // Navigate to Game Component
-        this.router.navigate(['/game'], { queryParams: { code: this.lobbyCode } });
-
+        switch (this.selectedMode.id) {
+            case 1:
+                this.router.navigate(['/game1'], { queryParams: { code: this.lobbyCode } });
+                break;
+            case 2:
+                this.router.navigate(['/game2'], { queryParams: { code: this.lobbyCode } });
+                break;
+            case 3:
+                this.router.navigate(['/game3'], { queryParams: { code: this.lobbyCode } });
+                break;
+        }
     }
 
     confirmDifficultyChange(): void {

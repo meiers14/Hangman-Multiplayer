@@ -10,11 +10,16 @@ import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 import { GameComponent } from './game/game.component';
 import { LobbyComponent } from './lobby/lobby.component';
+import { DuelRoyaleComponent } from './game/duel-royale/duel-royale.component';
+import { ChallengeArenaComponent } from './game/challenge-arena/challenge-arena.component';
+import { CooperationMissionComponent } from './game/cooperation-mission/cooperation-mission.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
-  { path: 'game', component: GameComponent },
   { path: 'lobby', component: LobbyComponent },
+  { path: 'game1', component: DuelRoyaleComponent },
+  { path: 'game2', component: ChallengeArenaComponent },
+  { path: 'game3', component: CooperationMissionComponent },
   // Weitere Routen hier hinzufügen
 ];
 
@@ -23,7 +28,10 @@ const routes: Routes = [
     AppComponent,
     HomeComponent,
     GameComponent,
-    LobbyComponent
+    LobbyComponent,
+    DuelRoyaleComponent,
+    ChallengeArenaComponent,
+    CooperationMissionComponent
   ],
   imports: [
     BrowserModule,

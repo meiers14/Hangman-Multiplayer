@@ -23,7 +23,7 @@
     <div class="game-modes-column">
       <h2 class="modes-title">Wähle einen Spielmodus</h2>
       <div class="modes-row">
-        <div class="mode" *ngFor="let mode of gameModes" (click)="role === 'A' && selectMode(mode.name)" [ngClass]="{'selected': selectedMode === mode.name, 'disabled': role !== 'A'}">
+        <div class="mode" *ngFor="let mode of gameModes" (click)="selectMode(mode.id)" [ngClass]="{'selected': selectedMode?.id === mode.id, 'disabled': role !== 'A'}">
           <div class="card">
             <img [src]="mode.image" class="card-img-top" alt="{{ mode.name }}">
             <div class="card-body">
@@ -37,7 +37,7 @@
 
     <div class="difficulty-slider">
       <h3>Schwierigkeit</h3>
-      <input type="range" min="0" max="2" step="1" [(ngModel)]="selectedDifficultyValue" (change)="role === 'A' && updateDifficulty()" list="difficulty-ticks" [disabled]="!selectedMode || role !== 'A'">
+      <input type="range" min="1" max="3" step="1" [(ngModel)]="selectedDifficultyValue" (change)="role === 'A' && updateDifficulty()" list="difficulty-ticks" [disabled]="!selectedMode || role !== 'A'">
       <datalist id="difficulty-ticks">
       </datalist>
       <p>{{ selectedDifficultyLabel }}</p>

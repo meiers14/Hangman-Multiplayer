@@ -1,11 +1,12 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { SharedDataService } from '../shared-data.service';
+import { SharedDataService } from '../services/shared-data.service';
 
 // Models
 import { Lobby } from '../models/lobby';
 import { Difficulty } from '../models/difficulty.enum';
+import { GameMode } from '../models/game-mode';
 
 // Services
 import { LobbyService } from '../services/lobby.service';
@@ -21,6 +22,7 @@ export class GameComponent implements OnInit {
   // Shared Data
   lobbyCode: string = '';
   username: string = '';
+  selectedMode!: GameMode;
 
   // Database
   lobby!: Lobby;
@@ -64,6 +66,7 @@ export class GameComponent implements OnInit {
   ngOnInit() {
     this.lobbyCode = this.sharedDataService.get('lobbyCode');
     this.username = this.sharedDataService.get('username');
+    this.selectedMode = this.sharedDataService.get('selectedMode');
 
     this.getLobby();
     this.startNewRound();
