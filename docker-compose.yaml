@@ -14,8 +14,9 @@ services:
     restart: always
     container_name: backend-1
     ports:
-      - "8082:8080"
+      - "8091:8080"
     environment:
+      INIT_DATABASE: TRUE
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/${HANGMAN_DB}
       SPRING_DATASOURCE_USERNAME: ${HANGMAN_DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${HANGMAN_DB_PASSWORD}
@@ -32,7 +33,7 @@ services:
     restart: always
     container_name: backend-2
     ports:
-      - "8083:8080"
+      - "8092:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/${HANGMAN_DB}
       SPRING_DATASOURCE_USERNAME: ${HANGMAN_DB_USER}
@@ -50,7 +51,7 @@ services:
     restart: always
     container_name: backend-3
     ports:
-      - "8085:8080"
+      - "8093:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/${HANGMAN_DB}
       SPRING_DATASOURCE_USERNAME: ${HANGMAN_DB_USER}
