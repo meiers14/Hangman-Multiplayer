@@ -34,3 +34,8 @@ jobs:
 
     - name: Build and start Docker containers
       run: docker-compose up --build -d
+      env:
+        HANGMAN_DB: ${{ secrets.HANGMAN_DB }}
+        HANGMAN_DB_USER: ${{ secrets.HANGMAN_DB_USER }}
+        HANGMAN_DB_PASSWORD: ${{ secrets.HANGMAN_DB_PASSWORD }}
+        HANGMAN_DB_ROOT_PASSWORD: ${{ secrets.HANGMAN_DB_ROOT_PASSWORD }}
