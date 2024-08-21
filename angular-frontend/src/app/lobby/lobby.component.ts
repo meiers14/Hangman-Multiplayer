@@ -123,18 +123,44 @@ export class LobbyComponent implements OnInit {
         // Setze den Spielmodus
         this.selectMode(2);
 
-        this.updateDifficulty()
+        // Setze die Schwierigkeit basierend auf den Lobby-Daten
+        if (lobby.lobbyDifficulty) {
+            this.difficulty = lobby.lobbyDifficulty; // Setze die Schwierigkeit aus der Lobby
+            this.selectedDifficultyValue = this.difficultyToNumber(this.difficulty); // Setze den Slider-Wert
+            this.selectedDifficultyLabel = this.difficultyToLabel(this.difficulty); // Setze das Label
+        } else {
+            // Wenn keine Schwierigkeit gesetzt ist, setze einen Standardwert
+            this.selectedDifficultyValue = 2; // z.B. Leicht
+            this.difficulty = Difficulty.MITTEL;
+            this.selectedDifficultyLabel = 'MITTEL';
+        }
     }
 
     handleGameSettingsUpdate(update: any): void {
-        if (update.modeId !== undefined) {
-            this.selectedMode = this.gameModes.find(mode => mode.id === update.modeId);
-
-        }
-        if (update.difficultyValue !== undefined) {
-            this.selectedDifficultyValue = update.difficultyValue;
+        if (update.action === 'start') {
+            // Weiterleitung für Spieler B
+            switch (update.modeId) {
+                case 1:
+                    this.router.navigate(['/game1'], { queryParams: { code: this.lobbyCode } });
+                    break;
+                case 2:
+                    this.router.navigate(['/game2'], { queryParams: { code: this.lobbyCode } });
+                    break;
+                case 3:
+                    this.router.navigate(['/game3'], { queryParams: { code: this.lobbyCode } });
+                    break;
+            }
+        } else {
+            if (update.modeId !== undefined) {
+                this.selectedMode = this.gameModes.find(mode => mode.id === update.modeId);
+            }
+            if (update.difficultyValue !== undefined || update.difficultyLabel !== undefined) {
+                this.selectedDifficultyValue = update.difficultyValue;
+                this.selectedDifficultyLabel = update.difficultyLabel
+            }
         }
     }
+
 
     determineRole(): void {
         if (this.lobby.playerA === this.username) {
@@ -153,6 +179,19 @@ export class LobbyComponent implements OnInit {
                 return 2;
             case Difficulty.SCHWER:
                 return 3;
+        }
+    }
+
+    difficultyToLabel(difficulty: Difficulty): string {
+        switch (difficulty) {
+            case Difficulty.LEICHT:
+                return 'LEICHT';
+            case Difficulty.MITTEL:
+                return 'MITTEL';
+            case Difficulty.SCHWER:
+                return 'SCHWER';
+            default:
+                return 'UNBEKANNT';
         }
     }
 
@@ -209,8 +248,15 @@ export class LobbyComponent implements OnInit {
 
     startGame(): void {
         this.confirmDifficultyChange();
-        
-        // Navigate to Game Component
+
+        // WebSocket-Nachricht senden
+        this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
+            action: 'start',
+            modeId: this.selectedMode.id,
+            difficultyValue: this.selectedDifficultyValue
+        });
+
+        // Weiterleitung für Spieler A
         switch (this.selectedMode.id) {
             case 1:
                 this.router.navigate(['/game1'], { queryParams: { code: this.lobbyCode } });
@@ -224,7 +270,14 @@ export class LobbyComponent implements OnInit {
         }
     }
 
+
     confirmDifficultyChange(): void {
+        if (!this.difficulty) {
+            console.error('Schwierigkeit ist nicht gesetzt.');
+            this.snackBar.open('Fehler: Schwierigkeit nicht gesetzt.', 'Schließen', { duration: 3000 });
+            return;
+        }
+
         // API call updates difficulty in database
         this.lobbyService.updateDifficulty(this.lobbyCode, this.difficulty).subscribe({
             next: (response: string) => {
@@ -237,6 +290,7 @@ export class LobbyComponent implements OnInit {
             }
         });
     }
+
 
     leaveLobby(): void {
         // API call removes player from current lobby, deletes lobby if no players after
