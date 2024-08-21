@@ -255,3 +255,62 @@
   font-weight: bold;
   color: #ffffff; /* Weiße Schriftfarbe */
 }
+
+.top-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.players {
+  display: flex;
+  gap: 10px;
+}
+
+.player-box {
+  background-color: #f0f0f0;
+  border: 1px solid #333;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 1.2rem;
+  color: #333333;
+  display: inline-block;
+  /* Stellt sicher, dass die Breite nur die notwendige Breite einnimmt */
+  height: 40px;
+  /* Einheitliche Höhe für Spieler-Elemente */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lobby-code-section {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+}
+
+.copy-btn {
+  background-color: #007bff;
+  border: 1px solid #007bff;
+  border-radius: 5px;
+  padding: 10px;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  /* Einheitliche Höhe */
+}
+
+.copy-btn:hover {
+  background-color: #0056b3;
+}
+
+.highlight {
+  background-color: yellow;
+}

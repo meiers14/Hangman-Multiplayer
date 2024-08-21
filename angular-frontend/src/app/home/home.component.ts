@@ -1,37 +1,65 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { HomeService } from '../services/home.service';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { SharedDataService } from '../services/shared-data.service';
+
+// Models
 import { Lobby } from '../models/lobby';
 import { Difficulty } from '../models/difficulty.enum';
-import { SharedDataService } from '../shared-data.service';
+
+// Services
+import { HomeService } from '../services/home.service';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   // Shared Data
   lobbyCode: string = '';
   username: string = '';
 
-  constructor(private router: Router, private homeService: HomeService, private snackBar: MatSnackBar, private sharedDataService: SharedDataService) { }
+  constructor(
+    private router: Router, 
+    private homeService: HomeService, 
+    private snackBar: MatSnackBar, 
+    private sharedDataService: SharedDataService,
+    private route: ActivatedRoute
+  ) { }
+
+  ngOnInit(): void {
+    // Checks if URL contains a lobby code as parameter
+    this.route.queryParams.subscribe(params => {
+      const code = params['code'];
+      if (code) {
+        this.lobbyCode = code;
+      }
+    });
+  }
 
   createLobby(): void {
+    // Create new lobby object
     const lobby: Lobby = {
       playerA: this.username,
       lobbyDifficulty: Difficulty.MITTEL
     };
 
+    // API call returns lobby object created by player A
     this.homeService.createLobby(lobby).subscribe({
       next: (lobby: Lobby) => {
         console.log(lobby);
+
         if (lobby.lobbyCode) {
+          // Set lobby code
           this.lobbyCode = lobby.lobbyCode;
+
+          // Add player and lobby information to shared data
           this.sharedDataService.set('lobbyCode', this.lobbyCode);
           this.sharedDataService.set('username', this.username);
-          this.router.navigate(['/lobby'], { state: { lobbyCode: this.lobbyCode, username: this.username } });
+          
+          // Navigate to Lobby Component
+          this.router.navigate(['/lobby'], { queryParams: { code: this.lobbyCode} });
           this.snackBar.open('Neue Lobby erfolgreich erstellt', 'Schließen', { duration: 3000 });
         }
       },
@@ -47,12 +75,17 @@ export class HomeComponent {
   }
 
   joinLobby(): void {
+    // API call add player B to lobby
     this.homeService.joinLobby(this.lobbyCode, this.username).subscribe({
       next: (response: string) => {
         console.log(response);
+
+        // // Add player and lobby information to shared data
         this.sharedDataService.set('lobbyCode', this.lobbyCode);
         this.sharedDataService.set('username', this.username);
-        this.router.navigate(['/lobby']);
+
+        // Navigate to Lobby Component
+        this.router.navigate(['/lobby'], { queryParams: { code: this.lobbyCode} });
         this.snackBar.open(response, 'Schließen', { duration: 3000 });
       },
       error: (error) => {

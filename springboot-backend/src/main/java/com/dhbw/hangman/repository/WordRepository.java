@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface WordRepository extends JpaRepository<Word, Integer> {
     List<Word> findByWordDifficulty(Difficulty difficulty);
+    Boolean existsWordByWord(String word);
 }

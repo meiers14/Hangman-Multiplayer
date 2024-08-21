@@ -14,13 +14,14 @@ services:
     restart: always
     container_name: backend-1
     ports:
-      - "8082:8080"
+      - "8091:8080"
     environment:
-      spring.datasource.url: jdbc:mysql://mysqldb:3306/mydatabase
-      spring.datasource.username: myuser
-      spring.datasource.password: secret
-      spring.datasource.driver-class-name: com.mysql.cj.jdbc.Driver
-      spring.jpa.hibernate.ddl-auto: update
+      INIT_DATABASE: "true"
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/${HANGMAN_DB}
+      SPRING_DATASOURCE_USERNAME: ${HANGMAN_DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${HANGMAN_DB_PASSWORD}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
     depends_on:
       mysqldb:
         condition: service_healthy
@@ -32,13 +33,13 @@ services:
     restart: always
     container_name: backend-2
     ports:
-      - "8083:8080"
+      - "8092:8080"
     environment:
-      spring.datasource.url: jdbc:mysql://mysqldb:3306/mydatabase
-      spring.datasource.username: myuser
-      spring.datasource.password: secret
-      spring.datasource.driver-class-name: com.mysql.cj.jdbc.Driver
-      spring.jpa.hibernate.ddl-auto: update
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/${HANGMAN_DB}
+      SPRING_DATASOURCE_USERNAME: ${HANGMAN_DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${HANGMAN_DB_PASSWORD}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
     depends_on:
       mysqldb:
         condition: service_healthy
@@ -50,13 +51,13 @@ services:
     restart: always
     container_name: backend-3
     ports:
-      - "8085:8080"
+      - "8093:8080"
     environment:
-      spring.datasource.url: jdbc:mysql://mysqldb:3306/mydatabase
-      spring.datasource.username: myuser
-      spring.datasource.password: secret
-      spring.datasource.driver-class-name: com.mysql.cj.jdbc.Driver
-      spring.jpa.hibernate.ddl-auto: update
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/${HANGMAN_DB}
+      SPRING_DATASOURCE_USERNAME: ${HANGMAN_DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${HANGMAN_DB_PASSWORD}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
     depends_on:
       mysqldb:
         condition: service_healthy
@@ -68,10 +69,10 @@ services:
     ports:
       - "3306:3306"
     environment:
-      MYSQL_DATABASE: mydatabase
-      MYSQL_USER: myuser
-      MYSQL_PASSWORD: secret
-      MYSQL_ROOT_PASSWORD: verysecret
+      MYSQL_DATABASE: ${HANGMAN_DB}
+      MYSQL_USER: ${HANGMAN_DB_USER}
+      MYSQL_PASSWORD: ${HANGMAN_DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${HANGMAN_DB_ROOT_PASSWORD}
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 30s

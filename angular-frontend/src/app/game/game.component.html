@@ -1,8 +1,22 @@
+<ng-content></ng-content>
 <div class="outer-container">
     <div class="header text-center my-4">
-        <h1 class="app-title">Hangman Basisspiel</h1>
+        <h1 class="app-title"> {{ selectedMode.name }} </h1>
+        <!-- Hier könnte man auch die selectedMode.description verwenden, bzw. ein anderes Attribut (noch definieren)-->
         <p class="app-description">Errate das Wort, indem du Buchstaben auswählst. Du hast 6 Leben pro Runde. Das Spiel endet nach 5 Runden.</p>
     </div>
+    <div class="top-section" *ngIf="lobby">
+        <div class="players">
+          <div class="player-box" *ngFor="let player of players" [ngClass]="{'highlight': player === currentPlayer}">
+            {{ player }}
+          </div>
+        </div>
+        <div class="lobby-code-section">
+          <button class="btn copy-btn">
+            <i class="fa fa-copy"></i> {{ lobbyCode }}
+          </button>
+        </div>
+      </div>
     <div class="content d-flex">
         <!-- Counters Column -->
         <div class="counters-column mr-4">

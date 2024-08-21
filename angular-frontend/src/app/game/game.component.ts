@@ -1,12 +1,17 @@
 import { Component, HostListener, OnInit } from '@angular/core';
-import { WebsocketService } from '../services/websocket.service';
-import { Lobby } from '../models/lobby';
-import { Difficulty } from '../models/difficulty.enum';
-import { LobbyService } from '../services/lobby.service';
-import { GameService } from '../services/game.service';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { SharedDataService } from '../shared-data.service';
+import { SharedDataService } from '../services/shared-data.service';
+
+// Models
+import { Lobby } from '../models/lobby';
+import { Difficulty } from '../models/difficulty.enum';
+import { GameMode } from '../models/game-mode';
+
+// Services
+import { LobbyService } from '../services/lobby.service';
+import { GameService } from '../services/game.service';
+import { WebsocketService } from '../services/websocket.service';
 
 @Component({
   selector: 'app-game',
@@ -17,10 +22,11 @@ export class GameComponent implements OnInit {
   // Shared Data
   lobbyCode: string = '';
   username: string = '';
+  selectedMode!: GameMode;
 
   // Database
   lobby!: Lobby;
-  difficulty!: Difficulty;
+  difficulty: Difficulty = Difficulty.MITTEL;
   players: string[] = [];
   words: string[] = [];
 
@@ -60,6 +66,8 @@ export class GameComponent implements OnInit {
   ngOnInit() {
     this.lobbyCode = this.sharedDataService.get('lobbyCode');
     this.username = this.sharedDataService.get('username');
+    this.selectedMode = this.sharedDataService.get('selectedMode');
+
     this.getLobby();
     this.startNewRound();
 
@@ -82,22 +90,24 @@ export class GameComponent implements OnInit {
   }
 
   getLobby(): void {
+    // API call returns Lobby object
     this.lobbyService.getLobbyByCode(this.lobbyCode).subscribe({
       next: (lobby: Lobby) => {
         if (!lobby || lobby === null) {
+          // Navigate to Home Component if no lobby object was found
           this.router.navigate(['/']);
           throw new Error('Lobby ist null oder nicht gefunden');
         }
-
+        // Set local variables
         this.lobby = lobby;
         this.players = [lobby.playerA, lobby.playerB].filter((p): p is string => p !== undefined);
-
         if (lobby.lobbyDifficulty) {
           this.difficulty = lobby.lobbyDifficulty;
         }
-
+        
         this.getWords();
 
+        // Set player A as current player
         this.currentPlayer = this.players[0] || '';
         this.isCurrentPlayer = (this.username === this.currentPlayer);
       },
@@ -109,6 +119,7 @@ export class GameComponent implements OnInit {
   }
 
   getWords(): void {
+     // API call returns list of words depending on difficulty
     this.gameService.getWordsByDifficulty(this.difficulty).subscribe({
       next: (words) => {
         this.words = words.map((word: { word: any}) => word.word);
@@ -150,6 +161,7 @@ export class GameComponent implements OnInit {
 
     this.guessedLetters.push(letter);
     if (this.word.includes(letter)) {
+      // Display guessed letter if it is correct
       for (let i = 0; i < this.word.length; i++) {
         if (this.word[i] === letter) {
           this.displayWord[i] = letter;
@@ -158,8 +170,10 @@ export class GameComponent implements OnInit {
       this.updateHangmanImage();
       this.sendGameUpdate();
       this.checkWin();
-    } else {
+    } 
+    else {
       this.remainingLives--;
+      // Game is over if no lives remain befor finish guessing the word
       if (this.remainingLives <= 0) {
         this.remainingLives = 0;
         this.gameOver = true;
@@ -215,7 +229,8 @@ export class GameComponent implements OnInit {
   }
 
   leaveGame() {
-    this.router.navigate(['/lobby']);
+    this.router.navigate(['/lobby'], { queryParams: { code: this.lobbyCode } });
+
   }
 
   private sendGameUpdate() {
