@@ -76,6 +76,10 @@ export class LobbyComponent implements OnInit {
                 this.websocketService.subscribeToLobby(this.lobbyCode, (lobby: Lobby) => {
                     this.handleLobbyUpdate(lobby);
                 });
+
+                this.websocketService.subscribeToGame(this.lobbyCode, (update: any) => {
+                    this.handleGameSettingsUpdate(update);
+                });
             }
         });
     }
@@ -100,11 +104,11 @@ export class LobbyComponent implements OnInit {
 
     handleLobbyUpdate(lobby: Lobby): void {
         console.log('Lobby updated:', lobby);
-        
-        // Set lobby
+
+        // Setze die Lobby-Daten
         this.lobby = lobby;
 
-        // Set players
+        // Setze die Spieler
         this.players = [];
         if (this.lobby.playerA) {
             this.players.push(this.lobby.playerA);
@@ -113,16 +117,22 @@ export class LobbyComponent implements OnInit {
             this.players.push(this.lobby.playerB);
         }
 
-        // Set player role
+        // Setze die Spielerrolle
         this.determineRole();
 
-        // Set game mode
+        // Setze den Spielmodus
         this.selectMode(2);
 
-        // Set difficulty
-        if (this.lobby.lobbyDifficulty) {
-            this.selectedDifficultyValue = this.difficultyToNumber(this.lobby.lobbyDifficulty);
-            this.updateDifficulty();
+        this.updateDifficulty()
+    }
+
+    handleGameSettingsUpdate(update: any): void {
+        if (update.modeId !== undefined) {
+            this.selectedMode = this.gameModes.find(mode => mode.id === update.modeId);
+
+        }
+        if (update.difficultyValue !== undefined) {
+            this.selectedDifficultyValue = update.difficultyValue;
         }
     }
 
@@ -147,7 +157,6 @@ export class LobbyComponent implements OnInit {
     }
 
     updateDifficulty(): void {
-        // Cast difficulty number to object, update locally
         switch (this.selectedDifficultyValue) {
             case 1:
                 this.selectedDifficultyLabel = 'LEICHT';
@@ -163,6 +172,12 @@ export class LobbyComponent implements OnInit {
                 break;
         }
         console.log(this.difficulty);
+
+        if (this.role === 'A') {
+            this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
+                difficultyValue: this.selectedDifficultyValue
+            });
+        }
     }
 
     copyLobbyCode(): void {
@@ -178,11 +193,18 @@ export class LobbyComponent implements OnInit {
         navigator.clipboard.writeText(inviteLink).then(() => {
             this.snackBar.open('Einladungslink kopiert: ' + inviteLink, 'Schließen', { duration: 3000 });
         });
-    }    
+    }
 
     selectMode(modeId: number): void {
-        this.selectedMode = this.gameModes.find(mode => mode.id === modeId);
-        this.sharedDataService.set('selectedMode', this.selectedMode);
+        if (this.role === 'A') {
+            this.selectedMode = this.gameModes.find(mode => mode.id === modeId);
+            this.sharedDataService.set('selectedMode', this.selectedMode);
+
+            // Nachricht über WebSocket senden
+            this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
+                modeId: modeId
+            });
+        }
     }
 
     startGame(): void {
