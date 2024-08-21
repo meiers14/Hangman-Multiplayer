@@ -16,7 +16,7 @@ services:
     ports:
       - "8091:8080"
     environment:
-      INIT_DATABASE: TRUE
+      INIT_DATABASE: "true"
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/${HANGMAN_DB}
       SPRING_DATASOURCE_USERNAME: ${HANGMAN_DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${HANGMAN_DB_PASSWORD}
