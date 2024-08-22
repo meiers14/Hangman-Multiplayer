@@ -119,17 +119,21 @@ export class GameComponent implements OnInit {
   }
 
   getWords(): void {
-     // API call returns list of words depending on difficulty
     this.gameService.getWordsByDifficulty(this.difficulty).subscribe({
       next: (words) => {
         this.words = words.map((word: { word: any}) => word.word);
-        this.startNewRound();
+        if (this.words.length > 0) {
+          this.startNewRound();
+        } else {
+          console.error('Keine Wörter von der API erhalten.');
+        }
       },
       error: (error) => {
         console.error('Fehler beim Abrufen der Wörter:', error);
       }
-    });  
+    });
   }
+
 
   @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
@@ -184,6 +188,7 @@ export class GameComponent implements OnInit {
     }
   }
 
+
   checkWin() {
     if (this.displayWord.join('') === this.word) {
       this.gameWon = true;
@@ -203,7 +208,10 @@ export class GameComponent implements OnInit {
       this.gameOver = true;
       return;
     }
-
+    if (!this.words || this.words.length === 0) {
+      console.error('Keine Wörter verfügbar.');
+      return;
+    }
     this.guessedLetters = [];
     this.remainingLives = 6;
     this.hangmanImage = 'assets/hangman0.png';
@@ -243,7 +251,8 @@ export class GameComponent implements OnInit {
       currentRound: this.currentRound,
       maxRounds: this.maxRounds,
       guessedLetters: this.guessedLetters,
-      currentPlayer: this.currentPlayer
+      currentPlayer: this.currentPlayer,
+      selectedMode: this.selectedMode
     };
     this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, gameState);
   }
@@ -259,7 +268,7 @@ export class GameComponent implements OnInit {
       this.maxRounds = gameState.maxRounds !== undefined ? gameState.maxRounds : this.maxRounds;
       this.guessedLetters = gameState.guessedLetters || this.guessedLetters;
       this.currentPlayer = gameState.currentPlayer || this.currentPlayer;
-
+      this.selectedMode = gameState.selectedMode || this.selectedMode;
       this.isCurrentPlayer = (this.username === this.currentPlayer);
       this.updateHangmanImage();
     }

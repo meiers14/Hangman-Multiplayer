@@ -76,6 +76,10 @@ export class LobbyComponent implements OnInit {
                 this.websocketService.subscribeToLobby(this.lobbyCode, (lobby: Lobby) => {
                     this.handleLobbyUpdate(lobby);
                 });
+
+                this.websocketService.subscribeToGame(this.lobbyCode, (update: any) => {
+                    this.handleGameSettingsUpdate(update);
+                });
             }
         });
     }
@@ -100,11 +104,11 @@ export class LobbyComponent implements OnInit {
 
     handleLobbyUpdate(lobby: Lobby): void {
         console.log('Lobby updated:', lobby);
-        
-        // Set lobby
+
+        // Setze die Lobby-Daten
         this.lobby = lobby;
 
-        // Set players
+        // Setze die Spieler
         this.players = [];
         if (this.lobby.playerA) {
             this.players.push(this.lobby.playerA);
@@ -113,18 +117,57 @@ export class LobbyComponent implements OnInit {
             this.players.push(this.lobby.playerB);
         }
 
-        // Set player role
+        // Setze die Spielerrolle
         this.determineRole();
 
-        // Set game mode
+        // Setze den Spielmodus
         this.selectMode(2);
 
-        // Set difficulty
-        if (this.lobby.lobbyDifficulty) {
-            this.selectedDifficultyValue = this.difficultyToNumber(this.lobby.lobbyDifficulty);
-            this.updateDifficulty();
+        // Setze die Schwierigkeit basierend auf den Lobby-Daten
+        if (lobby.lobbyDifficulty) {
+            this.difficulty = lobby.lobbyDifficulty;
+            this.selectedDifficultyValue = this.difficultyToNumber(this.difficulty);
+            this.selectedDifficultyLabel = this.difficultyToLabel(this.difficulty);
+        } else {
+            // Wenn keine Schwierigkeit gesetzt ist, setze einen Standardwert
+            this.selectedDifficultyValue = 2;
+            this.difficulty = Difficulty.MITTEL;
+            this.selectedDifficultyLabel = 'MITTEL';
         }
     }
+
+    handleGameSettingsUpdate(update: any): void {
+        if (update.action === 'start') {
+            // Weiterleitung für Spieler B
+            switch (update.modeId) {
+                case 1:
+                    this.router.navigate(['/game1'], { queryParams: { code: this.lobbyCode } });
+                    break;
+                case 2:
+                    this.router.navigate(['/game2'], { queryParams: { code: this.lobbyCode } });
+                    break;
+                case 3:
+                    this.router.navigate(['/game3'], { queryParams: { code: this.lobbyCode } });
+                    break;
+            }
+        } else {
+            if (update.modeId !== undefined) {
+                this.selectedMode = this.gameModes.find(mode => mode.id === update.modeId);
+            }
+            if (update.difficulty !== undefined) {
+                console.log('Empfangene Schwierigkeit:', update.difficulty);
+
+                if (update.difficultyValue !== undefined && update.difficultyLabel !== undefined) {
+                    this.selectedDifficultyValue = update.difficultyValue;
+                    this.selectedDifficultyLabel = update.difficultyLabel;
+                    this.difficulty = update.difficulty;
+                } else {
+                    console.error('Fehlende Werte für Schwierigkeit in der Nachricht:', update);
+                }
+            }
+        }
+    }
+
 
     determineRole(): void {
         if (this.lobby.playerA === this.username) {
@@ -146,8 +189,20 @@ export class LobbyComponent implements OnInit {
         }
     }
 
+    difficultyToLabel(difficulty: Difficulty): string {
+        switch (difficulty) {
+            case Difficulty.LEICHT:
+                return 'LEICHT';
+            case Difficulty.MITTEL:
+                return 'MITTEL';
+            case Difficulty.SCHWER:
+                return 'SCHWER';
+            default:
+                return 'UNBEKANNT';
+        }
+    }
+
     updateDifficulty(): void {
-        // Cast difficulty number to object, update locally
         switch (this.selectedDifficultyValue) {
             case 1:
                 this.selectedDifficultyLabel = 'LEICHT';
@@ -163,6 +218,14 @@ export class LobbyComponent implements OnInit {
                 break;
         }
         console.log(this.difficulty);
+
+        if (this.role === 'A') {
+            this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
+                difficultyValue: this.selectedDifficultyValue,
+                difficultyLabel: this.selectedDifficultyLabel,
+                difficulty: this.difficulty
+            });
+        }
     }
 
     copyLobbyCode(): void {
@@ -178,17 +241,31 @@ export class LobbyComponent implements OnInit {
         navigator.clipboard.writeText(inviteLink).then(() => {
             this.snackBar.open('Einladungslink kopiert: ' + inviteLink, 'Schließen', { duration: 3000 });
         });
-    }    
+    }
 
     selectMode(modeId: number): void {
-        this.selectedMode = this.gameModes.find(mode => mode.id === modeId);
-        this.sharedDataService.set('selectedMode', this.selectedMode);
+        if (this.role === 'A') {
+            this.selectedMode = this.gameModes.find(mode => mode.id === modeId);
+            this.sharedDataService.set('selectedMode', this.selectedMode);
+
+            // Nachricht über WebSocket senden
+            this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
+                modeId: modeId
+            });
+        }
     }
 
     startGame(): void {
         this.confirmDifficultyChange();
-        
-        // Navigate to Game Component
+
+        // WebSocket-Nachricht senden
+        this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
+            action: 'start',
+            modeId: this.selectedMode.id,
+            difficultyValue: this.selectedDifficultyValue
+        });
+
+        // Weiterleitung für Spieler A
         switch (this.selectedMode.id) {
             case 1:
                 this.router.navigate(['/game1'], { queryParams: { code: this.lobbyCode } });
@@ -202,7 +279,14 @@ export class LobbyComponent implements OnInit {
         }
     }
 
+
     confirmDifficultyChange(): void {
+        if (!this.difficulty) {
+            console.error('Schwierigkeit ist nicht gesetzt.');
+            this.snackBar.open('Fehler: Schwierigkeit nicht gesetzt.', 'Schließen', { duration: 3000 });
+            return;
+        }
+
         // API call updates difficulty in database
         this.lobbyService.updateDifficulty(this.lobbyCode, this.difficulty).subscribe({
             next: (response: string) => {
@@ -215,6 +299,7 @@ export class LobbyComponent implements OnInit {
             }
         });
     }
+
 
     leaveLobby(): void {
         // API call removes player from current lobby, deletes lobby if no players after
