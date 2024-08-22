@@ -188,6 +188,7 @@ export class GameComponent implements OnInit {
     }
   }
 
+
   checkWin() {
     if (this.displayWord.join('') === this.word) {
       this.gameWon = true;
