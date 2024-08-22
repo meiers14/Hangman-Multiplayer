@@ -125,12 +125,12 @@ export class LobbyComponent implements OnInit {
 
         // Setze die Schwierigkeit basierend auf den Lobby-Daten
         if (lobby.lobbyDifficulty) {
-            this.difficulty = lobby.lobbyDifficulty; // Setze die Schwierigkeit aus der Lobby
-            this.selectedDifficultyValue = this.difficultyToNumber(this.difficulty); // Setze den Slider-Wert
-            this.selectedDifficultyLabel = this.difficultyToLabel(this.difficulty); // Setze das Label
+            this.difficulty = lobby.lobbyDifficulty;
+            this.selectedDifficultyValue = this.difficultyToNumber(this.difficulty);
+            this.selectedDifficultyLabel = this.difficultyToLabel(this.difficulty);
         } else {
             // Wenn keine Schwierigkeit gesetzt ist, setze einen Standardwert
-            this.selectedDifficultyValue = 2; // z.B. Leicht
+            this.selectedDifficultyValue = 2;
             this.difficulty = Difficulty.MITTEL;
             this.selectedDifficultyLabel = 'MITTEL';
         }
@@ -154,9 +154,16 @@ export class LobbyComponent implements OnInit {
             if (update.modeId !== undefined) {
                 this.selectedMode = this.gameModes.find(mode => mode.id === update.modeId);
             }
-            if (update.difficultyValue !== undefined || update.difficultyLabel !== undefined) {
-                this.selectedDifficultyValue = update.difficultyValue;
-                this.selectedDifficultyLabel = update.difficultyLabel
+            if (update.difficulty !== undefined) {
+                console.log('Empfangene Schwierigkeit:', update.difficulty);
+
+                if (update.difficultyValue !== undefined && update.difficultyLabel !== undefined) {
+                    this.selectedDifficultyValue = update.difficultyValue;
+                    this.selectedDifficultyLabel = update.difficultyLabel;
+                    this.difficulty = update.difficulty;
+                } else {
+                    console.error('Fehlende Werte für Schwierigkeit in der Nachricht:', update);
+                }
             }
         }
     }
@@ -214,7 +221,9 @@ export class LobbyComponent implements OnInit {
 
         if (this.role === 'A') {
             this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
-                difficultyValue: this.selectedDifficultyValue
+                difficultyValue: this.selectedDifficultyValue,
+                difficultyLabel: this.selectedDifficultyLabel,
+                difficulty: this.difficulty
             });
         }
     }
