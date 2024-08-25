@@ -127,8 +127,6 @@ export class LobbyComponent implements OnInit {
             this.user = this.players[1];
         }
 
-        console.log('Current user role:', this.user.role);
-
         // Setze den Spielmodus
         this.selectMode(2);
 
@@ -197,8 +195,6 @@ export class LobbyComponent implements OnInit {
                 return 'MITTEL';
             case Difficulty.SCHWER:
                 return 'SCHWER';
-            default:
-                return 'UNBEKANNT';
         }
     }
 

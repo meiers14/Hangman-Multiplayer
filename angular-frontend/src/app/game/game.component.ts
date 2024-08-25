@@ -117,10 +117,6 @@ export class GameComponent implements OnInit {
         
         this.getWords();
 
-        // Set player A as current player
-        this.currentPlayer = this.players[0];
-        this.isCurrentPlayer = (this.user === this.currentPlayer);
-
         // Set local user
         if (this.username === this.players[0].name) {
           this.user = this.players[0];
@@ -128,6 +124,10 @@ export class GameComponent implements OnInit {
         else {
           this.user = this.players[1];
         }
+
+         // Set player A as current player
+         this.currentPlayer = this.user
+         this.isCurrentPlayer = (this.user === this.currentPlayer);
       },
       error: (error) => {
         console.error('Fehler:', error);
@@ -294,7 +294,7 @@ export class GameComponent implements OnInit {
   }
 
   private switchPlayer() {
-    this.currentPlayer = this.players.find(player => player !== this.currentPlayer) || this.currentPlayer;
+    this.currentPlayer = this.players.find(player => player.name !== this.currentPlayer.name) || this.currentPlayer;
     this.isCurrentPlayer = (this.username === this.currentPlayer.name);
   }
 }

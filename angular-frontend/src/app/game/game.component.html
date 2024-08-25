@@ -9,11 +9,11 @@
     <div class="top-section" *ngIf="lobby">
         <div class="players">
             <div class="player-box" *ngFor="let player of players" [ngClass]="{
-                   'player-a': player.role === 'A',
-                   'player-b': player.role === 'B',
-                   'current-player': player === currentPlayer,
-                   'inactive-player': player !== currentPlayer && (player.role === 'A' || player.role === 'B')
-                 }">
+                'current-player-a': player.name === currentPlayer.name && player.role === 'A',
+                'current-player-b': player.name === currentPlayer.name && player.role === 'B',
+                'inactive-player-a': player.name !== currentPlayer.name && player.role === 'A',
+                'inactive-player-b': player.name !== currentPlayer.name && player.role === 'B'
+            }">
                 {{ player.name }}
             </div>
         </div>
@@ -40,9 +40,10 @@
                     <p>{{ wins }}</p>
                 </div>
             </div> -->
+            <h3 class="rounds-title">Runden</h3>
             <div class="round-indicators">
                 <div *ngFor="let round of rounds; let i = index" class="round-circle"
-                    [ngClass]="{'player-a': round === 'A', 'player-b': round === 'B', 'grey': round === null}">
+                    [ngClass]="{'round-player-a': round === 'A', 'round-player-b': round === 'B', 'round-grey': round === null}">
                 </div>
             </div>
             <div class="footer-buttons">
