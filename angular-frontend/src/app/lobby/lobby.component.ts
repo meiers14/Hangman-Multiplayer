@@ -122,10 +122,12 @@ export class LobbyComponent implements OnInit {
         // Set local user
         if (this.username === this.players[0].name) {
             this.user = this.players[0];
-          }
-          else {
+        }
+        else {
             this.user = this.players[1];
-          }
+        }
+
+        console.log('Current user role:', this.user.role);
 
         // Setze den Spielmodus
         this.selectMode(2);
@@ -242,15 +244,13 @@ export class LobbyComponent implements OnInit {
     }
 
     selectMode(modeId: number): void {
-        if (this.role === 'A') {
-            this.selectedMode = this.gameModes.find(mode => mode.id === modeId);
-            this.sharedDataService.set('selectedMode', this.selectedMode);
+        this.selectedMode = this.gameModes.find(mode => mode.id === modeId);
+        this.sharedDataService.set('selectedMode', this.selectedMode);
 
-            // Nachricht über WebSocket senden
-            this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
-                modeId: modeId
-            });
-        }
+        // Nachricht über WebSocket senden
+        this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
+            modeId: modeId
+        });
     }
 
     startGame(): void {
