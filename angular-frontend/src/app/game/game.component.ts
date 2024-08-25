@@ -7,6 +7,7 @@ import { SharedDataService } from '../services/shared-data.service';
 import { Lobby } from '../models/lobby';
 import { Difficulty } from '../models/difficulty.enum';
 import { GameMode } from '../models/game-mode';
+import { Player } from '../models/player';
 
 // Services
 import { LobbyService } from '../services/lobby.service';
@@ -27,15 +28,16 @@ export class GameComponent implements OnInit {
   // Database
   lobby!: Lobby;
   difficulty: Difficulty = Difficulty.MITTEL;
-  players: string[] = [];
-  words: string[] = [];
+  players!: Player[];
+  user!: Player;
+  words!: string[];
 
   // Game 
   alphabet: string[] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-  guessedLetters: string[] = [];
+  guessedLetters!: string[];
 
-  word: string = '';
-  displayWord: string[] = [];
+  word!: string;
+  displayWord!: string[];
   
   remainingLives: number = 6;
   hangmanImage: string = 'assets/hangman0.png';
@@ -43,11 +45,13 @@ export class GameComponent implements OnInit {
   gameOver: boolean = false;
   gameWon: boolean = false;
 
-  currentPlayer: string = '';
+  currentPlayer!: Player;
   isCurrentPlayer: boolean = false;
 
   currentRound: number = 1;
   maxRounds: number = 5;
+  rounds!: string[];
+
   wins: number = 0;
 
   // Chat 
@@ -67,6 +71,10 @@ export class GameComponent implements OnInit {
     this.lobbyCode = this.sharedDataService.get('lobbyCode');
     this.username = this.sharedDataService.get('username');
     this.selectedMode = this.sharedDataService.get('selectedMode');
+
+    this.rounds = Array(this.maxRounds).fill(null);
+    
+    this.currentRound = 1;
 
     this.getLobby();
     this.startNewRound();
@@ -100,7 +108,9 @@ export class GameComponent implements OnInit {
         }
         // Set local variables
         this.lobby = lobby;
-        this.players = [lobby.playerA, lobby.playerB].filter((p): p is string => p !== undefined);
+        if (lobby.playerA != null && lobby.playerB != null) {
+          this.players = [lobby.playerA, lobby.playerB];
+        }
         if (lobby.lobbyDifficulty) {
           this.difficulty = lobby.lobbyDifficulty;
         }
@@ -108,8 +118,16 @@ export class GameComponent implements OnInit {
         this.getWords();
 
         // Set player A as current player
-        this.currentPlayer = this.players[0] || '';
-        this.isCurrentPlayer = (this.username === this.currentPlayer);
+        this.currentPlayer = this.players[0];
+        this.isCurrentPlayer = (this.user === this.currentPlayer);
+
+        // Set local user
+        if (this.username === this.players[0].name) {
+          this.user = this.players[0];
+        }
+        else {
+          this.user = this.players[1];
+        }
       },
       error: (error) => {
         console.error('Fehler:', error);
@@ -193,6 +211,7 @@ export class GameComponent implements OnInit {
     if (this.displayWord.join('') === this.word) {
       this.gameWon = true;
       this.wins++;
+      this.rounds[this.currentRound - 1] = this.user.role;
       this.switchPlayer();
       this.sendGameUpdate();
     }
@@ -269,13 +288,13 @@ export class GameComponent implements OnInit {
       this.guessedLetters = gameState.guessedLetters || this.guessedLetters;
       this.currentPlayer = gameState.currentPlayer || this.currentPlayer;
       this.selectedMode = gameState.selectedMode || this.selectedMode;
-      this.isCurrentPlayer = (this.username === this.currentPlayer);
+      this.isCurrentPlayer = (this.username === this.currentPlayer.name);
       this.updateHangmanImage();
     }
   }
 
   private switchPlayer() {
     this.currentPlayer = this.players.find(player => player !== this.currentPlayer) || this.currentPlayer;
-    this.isCurrentPlayer = (this.username === this.currentPlayer);
+    this.isCurrentPlayer = (this.username === this.currentPlayer.name);
   }
 }

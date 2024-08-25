@@ -14,7 +14,7 @@ public class LobbyService {
 
     @Autowired
     private LobbyRepository lobbyRepository;
-    private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    private static final String CHARACTERS = "0123456789";
     private static final int CODE_LENGTH = 6;
     private static final SecureRandom random = new SecureRandom();
 

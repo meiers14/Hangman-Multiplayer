@@ -7,6 +7,7 @@ import { SharedDataService } from '../services/shared-data.service';
 import { Lobby } from '../models/lobby';
 import { Difficulty } from '../models/difficulty.enum';
 import { GameMode } from '../models/game-mode';
+import { Player } from '../models/player';
 
 // Services
 import { LobbyService } from '../services/lobby.service';
@@ -25,7 +26,8 @@ export class LobbyComponent implements OnInit {
     // Database
     lobby!: Lobby;
     difficulty!: Difficulty;
-    players: string[] = [];
+    players: Player[] = [];
+    user!: Player;
 
     // User Role
     role: string = '';
@@ -117,8 +119,13 @@ export class LobbyComponent implements OnInit {
             this.players.push(this.lobby.playerB);
         }
 
-        // Setze die Spielerrolle
-        this.determineRole();
+        // Set local user
+        if (this.username === this.players[0].name) {
+            this.user = this.players[0];
+          }
+          else {
+            this.user = this.players[1];
+          }
 
         // Setze den Spielmodus
         this.selectMode(2);
@@ -165,15 +172,6 @@ export class LobbyComponent implements OnInit {
                     console.error('Fehlende Werte für Schwierigkeit in der Nachricht:', update);
                 }
             }
-        }
-    }
-
-
-    determineRole(): void {
-        if (this.lobby.playerA === this.username) {
-            this.role = 'A';
-        } else if (this.lobby.playerB === this.username) {
-            this.role = 'B';
         }
     }
 

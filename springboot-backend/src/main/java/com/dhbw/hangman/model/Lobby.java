@@ -11,10 +11,19 @@ public class Lobby {
 
 	private String lobbyCode;
 
-	private String playerA;
+	@Embedded
+	@AttributeOverrides({
+        @AttributeOverride(name = "name", column = @Column(name = "player_a_name")),
+        @AttributeOverride(name = "role", column = @Column(name = "player_a_role"))
+    })
+	private Player playerA;
 
-
-	private String playerB;
+	@Embedded
+	@AttributeOverrides({
+        @AttributeOverride(name = "name", column = @Column(name = "player_b_name")),
+        @AttributeOverride(name = "role", column = @Column(name = "player_b_role"))
+    })
+	private Player playerB;
 
 	@Enumerated(EnumType.STRING)
 	private Difficulty lobbyDifficulty;
@@ -36,19 +45,19 @@ public class Lobby {
 		this.lobbyCode = lobbyCode;
 	}
 
-	public String getPlayerA() {
+	public Player getPlayerA() {
 		return playerA;
 	}
 
-	public void setPlayerA(String playerA) {
+	public void setPlayerA(Player playerA) {
 		this.playerA = playerA;
 	}
 
-	public String getPlayerB() {
+	public Player getPlayerB() {
 		return playerB;
 	}
 
-	public void setPlayerB(String playerB) {
+	public void setPlayerB(Player playerB) {
 		this.playerB = playerB;
 	}
 
@@ -60,7 +69,7 @@ public class Lobby {
 		this.lobbyDifficulty = lobbyDifficulty;
 	}
 
-	public Lobby(int id, String lobbyCode, String playerA, String playerB, Difficulty lobbyDifficulty) {
+	public Lobby(int id, String lobbyCode, Player playerA, Player playerB, Difficulty lobbyDifficulty) {
 		super();
 		Id = id;
 		this.lobbyCode = lobbyCode;
