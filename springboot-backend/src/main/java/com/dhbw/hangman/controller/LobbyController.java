@@ -43,12 +43,12 @@ public class LobbyController {
     }
 
     @PostMapping("/createLobby")
-    public ResponseEntity<Lobby> createLobby(@RequestBody Lobby lobby) {
+    public ResponseEntity<Lobby> createLobby(@RequestBody Lobby lobbyObject) {
         try {
             String lobbyCode = lobbyService.generateLobbyCode();
-            lobby.setLobbyCode(lobbyCode);
-            lobbyRepository.save(lobby);
-            return new ResponseEntity<>(lobby, HttpStatus.OK);
+            lobbyObject.setLobbyCode(lobbyCode);
+            lobbyRepository.save(lobbyObject);
+            return new ResponseEntity<>(lobbyObject, HttpStatus.OK);
         } catch (DataAccessException e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
@@ -65,21 +65,21 @@ public class LobbyController {
     }
 
     @PutMapping("/joinLobby")
-    public ResponseEntity<String> joinLobby(@RequestParam String lobbyCode, @RequestParam String playerB) {
+    public ResponseEntity<String> joinLobby(@RequestBody Lobby lobbyObject) {
         try {
-            Lobby lobby = lobbyRepository.findByLobbyCode(lobbyCode);
+            Lobby lobby = lobbyRepository.findByLobbyCode(lobbyObject.getLobbyCode());
             if (lobby == null) {
                 return new ResponseEntity<>("Fehler: Ungültiger Lobby-Code", HttpStatus.NOT_FOUND);
             }
-            if (lobby.getPlayerB() != null && !lobby.getPlayerB().isEmpty()) {
+            if (lobby.getPlayerB() != null) {
                 return new ResponseEntity<>("Fehler: Lobby ist voll", HttpStatus.CONFLICT);
             }
-            if (playerB.equals(lobby.getPlayerA())) {
+            if (lobbyObject.getPlayerB().getName().equals(lobby.getPlayerA().getName())) {
                 return new ResponseEntity<>("Fehler: Spielername bereits vergeben", HttpStatus.CONFLICT);
             }
-            lobby.setPlayerB(playerB);
+            lobby.setPlayerB(lobbyObject.getPlayerB());
             lobbyRepository.save(lobby);
-            messagingTemplate.convertAndSend("/topic/lobby/" + lobbyCode, lobby);
+            messagingTemplate.convertAndSend("/topic/lobby/" + lobby.getLobbyCode(), lobby);
             return new ResponseEntity<>("Lobby erfolgreich beigetreten", HttpStatus.OK);
         } catch (DataAccessException e) {
             return new ResponseEntity<>("Fehler beim Aktualisieren der Lobby", HttpStatus.BAD_REQUEST);
@@ -93,16 +93,17 @@ public class LobbyController {
             if (lobby == null) {
                 return new ResponseEntity<>("Fehler: Lobby nicht gefunden", HttpStatus.NOT_FOUND);
             }
-            if (playerName.equals(lobby.getPlayerA())) {
+            if (playerName.equals(lobby.getPlayerA().getName())) {
                 if (lobby.getPlayerB() != null) {
                     lobby.setPlayerA(lobby.getPlayerB());
+                    lobby.getPlayerA().setRole("B");;
                     lobby.setPlayerB(null);
                 } else {
                     lobbyRepository.delete(lobby);
                     messagingTemplate.convertAndSend("/topic/lobby/" + lobbyCode, Optional.empty());
                     return new ResponseEntity<>("Lobby erfolgreich verlassen", HttpStatus.OK);
                 }
-            } else if (playerName.equals(lobby.getPlayerB())) {
+            } else if (playerName.equals(lobby.getPlayerB().getName())) {
                 lobby.setPlayerB(null);
             } else {
                 return new ResponseEntity<>("Fehler: Spieler nicht in der Lobby gefunden", HttpStatus.BAD_REQUEST);

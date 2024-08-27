@@ -1,10 +1,10 @@
 .outer-container {
-  height: calc(100vh - 60px); /* Höhe des Containers abzüglich des Margins */
-  margin: 30px; /* Größerer Margin von allen Seiten */
+  height: calc(100vh - 60px);
+  margin: 30px;
   display: flex;
   flex-direction: column;
-  background-color: rgba(255, 255, 255, 0); /* Vollständig transparenter Hintergrund */
-  border-radius: 10px; /* Optional: abgerundete Ecken */
+  background-color: rgba(255, 255, 255, 0);
+  border-radius: 10px;
 }
 
 .header {
@@ -15,21 +15,21 @@
 .app-title {
   font-size: 2.5rem;
   font-weight: bold;
-  color: #333333; /* Dunklere Farbe für besseren Kontrast */
+  color: #333333;
   margin: 0;
 }
 
 .app-description {
   font-size: 1.2rem;
-  color: #666666; /* Mitteldunkle Farbe für besseren Kontrast */
+  color: #666666;
   margin: 10px 0 0;
 }
 
 .content {
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr; /* Linke und rechte Spalte jeweils 1fr, mittlere Spalte 2fr */
+  grid-template-columns: 2fr 1fr 2fr;
   gap: 20px;
-  flex-grow: 1; /* Nimmt den verbleibenden Platz ein */
+  flex-grow: 1;
 }
 
 .counters-column {
@@ -39,52 +39,72 @@
   justify-content: center;
 }
 
-.counters-row {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
+.rounds-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333333;
+  margin-bottom: 10px;
 }
 
-.counter {
-  background-color: #f0f0f0; /* Hellere Hintergrundfarbe */
-  border: 1px solid #333333; /* Dunklere Randfarbe */
-  border-radius: 5px;
-  font-size: 1.2rem;
-  color: #333333; /* Dunklere Schriftfarbe */
-  font-weight: bold;
+.round-indicators {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 10px;
-  margin: 10px;
-  flex: 1;
+  margin-bottom: 20px;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.round-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: grey;
+}
+
+.round-player-a {
+  background-color: #78db1b;
+}
+
+.round-player-b {
+  background-color: #ae36e1;
+}
+
+.round-red {
+  background-color: #ff4d4d;
+}
+
+.round-green {
+  background-color: #4caf50;
+}
+
+.round-grey {
+  background-color: #bdc3c7;
 }
 
 .footer-buttons {
-  width: 100%;
   display: flex;
-  justify-content: space-around;
+  flex-direction: column;
+  align-items: center;
   gap: 10px;
   margin-top: auto;
+  width: 100%;
 }
 
 .footer-buttons .btn {
-  flex: 1;
-  max-width: 180px; /* maximale Breite */
+  width: 100%;
+  max-width: 180px;
   height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-size: 1rem;
   font-weight: bold;
 }
 
 .footer-buttons .btn:disabled {
-  background-color: #ccc; /* Ausgegrauter Hintergrund */
-  border-color: #ccc; /* Ausgegrauter Rand */
+  background-color: #ccc;
+  border-color: #ccc;
   cursor: not-allowed;
-  color: #666; /* Ausgegraute Schrift */
+  color: #666;
 }
 
 .game-column {
@@ -109,7 +129,7 @@
   font-size: 2rem;
   letter-spacing: 10px;
   margin-bottom: 20px;
-  color: #333333; /* Dunklere Farbe für besseren Kontrast */
+  color: #333333;
 }
 
 .letters {
@@ -131,14 +151,14 @@
   font-size: 1.5rem;
   width: 45px;
   height: 45px;
-  background-color: #f0f0f0; /* Hellere Hintergrundfarbe */
-  border: 1px solid #333333; /* Dunklere Randfarbe */
+  background-color: #f0f0f0;
+  border: 1px solid #333333;
   border-radius: 5px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #333333; /* Dunklere Schriftfarbe */
+  color: #333333;
 }
 
 .letters button:disabled {
@@ -158,16 +178,16 @@
   flex-direction: column;
   height: 100%;
   width: 100%;
-  border: 1px solid #333333; /* Dunklere Randfarbe */
+  border: 1px solid #333333;
   border-radius: 5px;
   padding: 10px;
-  background-color: #f0f0f0; /* Hellere Hintergrundfarbe */
+  background-color: #f0f0f0;
 }
 
 .chat-header {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #333333; /* Dunklere Schriftfarbe */
+  color: #333333;
   margin-bottom: 10px;
 }
 
@@ -245,15 +265,15 @@
   font-size: 0.9rem;
 }
 
-.btn-block {
+/* .btn-block {
   width: 100%;
-}
+} */
 
 .btn-danger {
-  background-color: #ff4d4d; /* Hellere rote Farbe */
-  border-color: #ff4d4d; /* Gleiche Farbe wie der Hintergrund */
+  background-color: #ff4d4d;
+  border-color: #ff4d4d;
   font-weight: bold;
-  color: #ffffff; /* Weiße Schriftfarbe */
+  color: #ffffff;
 }
 
 .top-section {
@@ -277,12 +297,28 @@
   font-size: 1.2rem;
   color: #333333;
   display: inline-block;
-  /* Stellt sicher, dass die Breite nur die notwendige Breite einnimmt */
   height: 40px;
-  /* Einheitliche Höhe für Spieler-Elemente */
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.current-player-a {
+  background-color: #78db1b;
+  border: 2px solid #333333;
+}
+
+.current-player-b {
+  background-color: #ae36e1;
+  border: 2px solid #333333;
+}
+
+.inactive-player-a {
+  background-color: #78db1b63;
+}
+
+.inactive-player-b {
+  background-color: #ae36e163;
 }
 
 .lobby-code-section {
@@ -304,7 +340,6 @@
   align-items: center;
   justify-content: center;
   height: 40px;
-  /* Einheitliche Höhe */
 }
 
 .copy-btn:hover {
@@ -313,4 +348,44 @@
 
 .highlight {
   background-color: yellow;
+}
+
+/* Cooperation Mission */
+
+.word-selection-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.word-selection-popup {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.word-options button {
+  margin: 10px;
+  padding: 10px 20px;
+  font-size: 1.2em;
+}
+
+.small-hangman-image img {
+  width: 100%;
+  max-width: 150px; 
+}
+
+.opponent-name {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333333;
+  margin-bottom: 10px;
 }

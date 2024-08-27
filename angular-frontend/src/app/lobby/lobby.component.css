@@ -32,9 +32,9 @@
 .players {
     display: flex;
     gap: 10px;
-}
-
-.player-box {
+  }
+  
+  .player-box {
     background-color: #f0f0f0;
     border: 1px solid #333;
     border-radius: 5px;
@@ -42,13 +42,29 @@
     font-size: 1.2rem;
     color: #333333;
     display: inline-block;
-    /* Stellt sicher, dass die Breite nur die notwendige Breite einnimmt */
     height: 40px;
-    /* Einheitliche Höhe für Spieler-Elemente */
     display: flex;
     align-items: center;
     justify-content: center;
-}
+  }
+  
+  .current-player-a {
+    background-color: #78db1b;
+    border: 2px solid #333333;
+  }
+  
+  .current-player-b {
+    background-color: #ae36e1;
+    border: 2px solid #333333;
+  }
+  
+  .inactive-player-a {
+    background-color: #78db1b63;
+  }
+  
+  .inactive-player-b {
+    background-color: #ae36e163;
+  }
 
 .lobby-code-section {
     display: flex;
@@ -171,6 +187,20 @@
 }
 
 .difficulty-slider input {
+    width: 100%;
+    max-width: 400px;
+}
+
+.rounds-slider {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.rounds-slider h3 {
+    margin-bottom: 10px;
+}
+
+.rounds-slider input {
     width: 100%;
     max-width: 400px;
 }

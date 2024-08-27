@@ -6,9 +6,10 @@ import { SharedDataService } from '../services/shared-data.service';
 // Models
 import { Lobby } from '../models/lobby';
 import { Difficulty } from '../models/difficulty.enum';
+import { Player } from '../models/player';
 
 // Services
-import { HomeService } from '../services/home.service';
+import { LobbyService } from '../services/lobby.service';
 
 @Component({
   selector: 'app-home',
@@ -22,7 +23,7 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private router: Router, 
-    private homeService: HomeService, 
+    private lobbyService: LobbyService, 
     private snackBar: MatSnackBar, 
     private sharedDataService: SharedDataService,
     private route: ActivatedRoute
@@ -41,12 +42,15 @@ export class HomeComponent implements OnInit {
   createLobby(): void {
     // Create new lobby object
     const lobby: Lobby = {
-      playerA: this.username,
+      playerA: {
+        name: this.username,
+        role: 'A'
+      },
       lobbyDifficulty: Difficulty.MITTEL
     };
 
     // API call returns lobby object created by player A
-    this.homeService.createLobby(lobby).subscribe({
+    this.lobbyService.createLobby(lobby).subscribe({
       next: (lobby: Lobby) => {
         console.log(lobby);
 
@@ -75,12 +79,19 @@ export class HomeComponent implements OnInit {
   }
 
   joinLobby(): void {
-    // API call add player B to lobby
-    this.homeService.joinLobby(this.lobbyCode, this.username).subscribe({
-      next: (response: string) => {
-        console.log(response);
+    // Create lobby object
+    const lobby: Lobby = {
+      lobbyCode: this.lobbyCode,
+      playerB: {
+        name: this.username,
+        role: 'B'
+      }
+    };
 
-        // // Add player and lobby information to shared data
+    // API call add player B to lobby
+    this.lobbyService.joinLobby(lobby).subscribe({
+      next: (response: string) => {
+        // Add player and lobby information to shared data
         this.sharedDataService.set('lobbyCode', this.lobbyCode);
         this.sharedDataService.set('username', this.username);
 
