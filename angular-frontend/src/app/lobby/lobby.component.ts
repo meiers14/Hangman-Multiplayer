@@ -7,11 +7,16 @@ import { SharedDataService } from '../services/shared-data.service';
 import { Lobby } from '../models/lobby';
 import { Difficulty } from '../models/difficulty.enum';
 import { GameMode } from '../models/game-mode';
+import { GameModeId } from '../models/game-mode-id.enum';
 import { Player } from '../models/player';
 
 // Services
 import { LobbyService } from '../services/lobby.service';
 import { WebsocketService } from '../services/websocket.service';
+
+// Helper and Configs
+import { DifficultyHelper } from '../helper/DifficultyHelper';
+import { GAME_MODES } from '../configs/game-modes.config';
 
 @Component({
     selector: 'app-lobby',
@@ -19,45 +24,23 @@ import { WebsocketService } from '../services/websocket.service';
     styleUrls: ['./lobby.component.css']
 })
 export class LobbyComponent implements OnInit {
-    // Shared Data
+    // From Shared Data
     lobbyCode: string = '';
     username: string = '';
 
-    // Database
+    // From Database
     lobby!: Lobby;
-    difficulty!: Difficulty;
     players: Player[] = [];
     user!: Player;
 
-    // User Role
-    role: string = '';
+    // From Config
+    gameModes: GameMode[] = GAME_MODES;
 
-    // Lobby Settings
-    selectedDifficultyValue!: number;
-    selectedDifficultyLabel: string = '';
-    selectedMode: any;
-
-    // Game Modes
-    gameModes: GameMode[] = [
-        {
-            id: 1,
-            name: 'Hangman Duell Royale',
-            description: 'Tritt gegen andere Spieler an und sammle Punkte in mehreren Runden. Der Spieler mit den meisten Punkten gewinnt.',
-            image: 'assets/hangman6.png'
-        },
-        {
-            id: 2,
-            name: 'Hangman Challenge Arena',
-            description: 'Wähle schwierige Wörter für deinen Gegner und versuche als erster, die erforderliche Punktzahl zu erreichen.',
-            image: 'assets/hangman6.png'
-        },
-        {
-            id: 3,
-            name: 'Hangman Kooperationsmission',
-            description: 'Arbeite mit anderen Spielern zusammen, um Wörter zu erraten und sammle gemeinsam Punkte, um das Spiel zu gewinnen.',
-            image: 'assets/hangman6.png'
-        }
-    ];
+    // Lobby Settings stored in Shared Data
+    selectedDifficulty: Difficulty = Difficulty.MITTEL;
+    DifficultyHelper = DifficultyHelper;
+    selectedMode: GameMode = this.gameModes.find(mode => mode.id === GameModeId.DUELL_ROYALE)!;
+    selectedRounds: number = 5;
 
     constructor(
         private router: Router,
@@ -70,21 +53,26 @@ export class LobbyComponent implements OnInit {
     ngOnInit(): void {
         this.lobbyCode = this.sharedDataService.get('lobbyCode');
         this.username = this.sharedDataService.get('username');
-
+    
         this.getLobby();
-
+    
         this.websocketService.isConnected().subscribe(connected => {
             if (connected) {
                 this.websocketService.subscribeToLobby(this.lobbyCode, (lobby: Lobby) => {
                     this.handleLobbyUpdate(lobby);
                 });
-
+    
                 this.websocketService.subscribeToGame(this.lobbyCode, (update: any) => {
-                    this.handleGameSettingsUpdate(update);
+                    this.handleLobbySettingsUpdate(update);
+                });
+    
+                // Wenn der Spieler B der Lobby beitritt, fordert er die aktuellen Einstellungen von Spieler A an
+                this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
+                    action: 'request_settings'
                 });
             }
         });
-    }
+    }    
 
     getLobby(): void {
         // API call returns Lobby object
@@ -106,10 +94,10 @@ export class LobbyComponent implements OnInit {
 
     handleLobbyUpdate(lobby: Lobby): void {
         console.log('Lobby updated:', lobby);
-
+    
         // Setze die Lobby-Daten
         this.lobby = lobby;
-
+    
         // Setze die Spieler
         this.players = [];
         if (this.lobby.playerA) {
@@ -118,112 +106,110 @@ export class LobbyComponent implements OnInit {
         if (this.lobby.playerB) {
             this.players.push(this.lobby.playerB);
         }
-
-        // Set local user
+    
+        // Set local user and role
         if (this.username === this.players[0].name) {
             this.user = this.players[0];
-        }
-        else {
+        } else {
             this.user = this.players[1];
         }
-
-        // Setze den Spielmodus
-        this.selectMode(2);
-
-        // Setze die Schwierigkeit basierend auf den Lobby-Daten
-        if (lobby.lobbyDifficulty) {
-            this.difficulty = lobby.lobbyDifficulty;
-            this.selectedDifficultyValue = this.difficultyToNumber(this.difficulty);
-            this.selectedDifficultyLabel = this.difficultyToLabel(this.difficulty);
-        } else {
-            // Wenn keine Schwierigkeit gesetzt ist, setze einen Standardwert
-            this.selectedDifficultyValue = 2;
-            this.difficulty = Difficulty.MITTEL;
-            this.selectedDifficultyLabel = 'MITTEL';
-        }
-    }
-
-    handleGameSettingsUpdate(update: any): void {
-        if (update.action === 'start') {
-            // Weiterleitung für Spieler B
-            switch (update.modeId) {
-                case 1:
-                    this.router.navigate(['/game1'], { queryParams: { code: this.lobbyCode } });
-                    break;
-                case 2:
-                    this.router.navigate(['/game2'], { queryParams: { code: this.lobbyCode } });
-                    break;
-                case 3:
-                    this.router.navigate(['/game3'], { queryParams: { code: this.lobbyCode } });
-                    break;
-            }
-        } else {
-            if (update.modeId !== undefined) {
-                this.selectedMode = this.gameModes.find(mode => mode.id === update.modeId);
-            }
-            if (update.difficulty !== undefined) {
-                console.log('Empfangene Schwierigkeit:', update.difficulty);
-
-                if (update.difficultyValue !== undefined && update.difficultyLabel !== undefined) {
-                    this.selectedDifficultyValue = update.difficultyValue;
-                    this.selectedDifficultyLabel = update.difficultyLabel;
-                    this.difficulty = update.difficulty;
-                } else {
-                    console.error('Fehlende Werte für Schwierigkeit in der Nachricht:', update);
-                }
-            }
-        }
-    }
-
-    difficultyToNumber(difficulty: Difficulty): number {
-        // Cast difficulty object to number for slider
-        switch (difficulty) {
-            case Difficulty.LEICHT:
-                return 1;
-            case Difficulty.MITTEL:
-                return 2;
-            case Difficulty.SCHWER:
-                return 3;
-        }
-    }
-
-    difficultyToLabel(difficulty: Difficulty): string {
-        switch (difficulty) {
-            case Difficulty.LEICHT:
-                return 'LEICHT';
-            case Difficulty.MITTEL:
-                return 'MITTEL';
-            case Difficulty.SCHWER:
-                return 'SCHWER';
-        }
-    }
-
-    updateDifficulty(): void {
-        switch (this.selectedDifficultyValue) {
-            case 1:
-                this.selectedDifficultyLabel = 'LEICHT';
-                this.difficulty = Difficulty.LEICHT;
-                break;
-            case 2:
-                this.selectedDifficultyLabel = 'MITTEL';
-                this.difficulty = Difficulty.MITTEL;
-                break;
-            case 3:
-                this.selectedDifficultyLabel = 'SCHWER';
-                this.difficulty = Difficulty.SCHWER;
-                break;
-        }
-        console.log(this.difficulty);
-
-        if (this.role === 'A') {
+    
+        // Senden Sie die aktuellen Einstellungen über WebSocket, wenn Spieler A ist
+        if (this.user.role === 'A') {
             this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
-                difficultyValue: this.selectedDifficultyValue,
-                difficultyLabel: this.selectedDifficultyLabel,
-                difficulty: this.difficulty
+                action: 'update_settings',
+                modeId: this.selectedMode.id,
+                difficultyValue: DifficultyHelper.toNumber(this.selectedDifficulty),
+                rounds: this.selectedRounds
             });
         }
     }
+    
 
+    handleLobbySettingsUpdate(update: any): void {
+        console.log('Received update:', update);
+    
+        if (update.action === 'start') {
+            // Weiterleitung für Spieler B basierend auf dem gewählten Spielmodus
+            switch (update.modeId) {
+                case GameModeId.DUELL_ROYALE:
+                    this.router.navigate(['/game1'], { queryParams: { code: this.lobbyCode } });
+                    break;
+                case GameModeId.CHALLENGE_ARENA:
+                    this.router.navigate(['/game2'], { queryParams: { code: this.lobbyCode } });
+                    break;
+                case GameModeId.KOOPERATIONSMISSION:
+                    this.router.navigate(['/game3'], { queryParams: { code: this.lobbyCode } });
+                    break;
+                default:
+                    console.error('Unbekannter Spielmodus:', update.modeId);
+            }
+        } else if (update.action === 'request_settings') {
+            console.log('Received request_settings. Role:', this.user.role);
+    
+            if (this.user.role === 'A') {
+                console.log('Player A is sending current settings...');
+    
+                // Spieler A sendet die aktuellen Einstellungen
+                this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
+                    action: 'update_settings',
+                    modeId: this.selectedMode.id,
+                    difficultyValue: DifficultyHelper.toNumber(this.selectedDifficulty),
+                    rounds: this.selectedRounds
+                });
+            }
+        } else if (update.action === 'update_settings') {
+            console.log('Settings update received:', update);
+    
+            // Verarbeite das Update für den Spielmodus
+            if (update.modeId !== undefined) {
+                this.selectedMode = this.gameModes.find(mode => mode.id === update.modeId)!;
+            }
+    
+            // Verarbeite das Update für die Schwierigkeit
+            if (update.difficultyValue !== undefined) {
+                this.selectedDifficulty = DifficultyHelper.fromNumber(update.difficultyValue);
+            }
+    
+            // Verarbeite das Update für die Rundenanzahl
+            if (update.rounds !== undefined) {
+                this.selectedRounds = update.rounds;
+            }
+    
+            console.log('Settings updated:', this.selectedMode, this.selectedDifficulty, this.selectedRounds);
+        }
+    }    
+        
+    updateMode(value: number): void {
+        this.selectedMode = this.gameModes.find(m => m.id === value)!;
+        this.sharedDataService.set('selectedMode', this.selectedMode);
+    
+        this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
+            action: 'update_settings',
+            modeId: this.selectedMode.id
+        });
+    }
+    
+    updateDifficulty(value: number): void {
+        this.selectedDifficulty = DifficultyHelper.fromNumber(value);
+        this.sharedDataService.set('selectedDifficulty', this.selectedDifficulty);
+    
+        this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
+            action: 'update_settings',
+            difficultyValue: DifficultyHelper.toNumber(this.selectedDifficulty)
+        });
+    }
+    
+    updateRounds(): void {
+        this.sharedDataService.set('selectedRounds', this.selectedRounds);
+    
+        this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
+            action: 'update_settings',
+            rounds: this.selectedRounds
+        });
+    }
+    
+    
     copyLobbyCode(): void {
         // Copy lobby code into buffer
         navigator.clipboard.writeText(this.lobbyCode).then(() => {
@@ -239,61 +225,28 @@ export class LobbyComponent implements OnInit {
         });
     }
 
-    selectMode(modeId: number): void {
-        this.selectedMode = this.gameModes.find(mode => mode.id === modeId);
-        this.sharedDataService.set('selectedMode', this.selectedMode);
-
-        // Nachricht über WebSocket senden
-        this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
-            modeId: modeId
-        });
-    }
-
     startGame(): void {
-        this.confirmDifficultyChange();
-
         // WebSocket-Nachricht senden
         this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
             action: 'start',
             modeId: this.selectedMode.id,
-            difficultyValue: this.selectedDifficultyValue
+            difficultyValue: this.selectedDifficulty,
+            rounds: this.selectedRounds
         });
 
         // Weiterleitung für Spieler A
         switch (this.selectedMode.id) {
-            case 1:
+            case GameModeId.DUELL_ROYALE:
                 this.router.navigate(['/game1'], { queryParams: { code: this.lobbyCode } });
                 break;
-            case 2:
+            case GameModeId.CHALLENGE_ARENA:
                 this.router.navigate(['/game2'], { queryParams: { code: this.lobbyCode } });
                 break;
-            case 3:
+            case GameModeId.KOOPERATIONSMISSION:
                 this.router.navigate(['/game3'], { queryParams: { code: this.lobbyCode } });
                 break;
         }
     }
-
-
-    confirmDifficultyChange(): void {
-        if (!this.difficulty) {
-            console.error('Schwierigkeit ist nicht gesetzt.');
-            this.snackBar.open('Fehler: Schwierigkeit nicht gesetzt.', 'Schließen', { duration: 3000 });
-            return;
-        }
-
-        // API call updates difficulty in database
-        this.lobbyService.updateDifficulty(this.lobbyCode, this.difficulty).subscribe({
-            next: (response: string) => {
-                console.log(response);
-                this.snackBar.open(response, 'Schließen', { duration: 3000 });
-            },
-            error: (error) => {
-                console.error('Fehler:', error);
-                this.snackBar.open(error.error || 'Fehler beim Aktualisieren der Schwierigkeit', 'Schließen', { duration: 3000 });
-            }
-        });
-    }
-
 
     leaveLobby(): void {
         // API call removes player from current lobby, deletes lobby if no players after

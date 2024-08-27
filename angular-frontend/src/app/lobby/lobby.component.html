@@ -11,9 +11,9 @@
           'inactive-player-a': player.name !== user.name && player.role === 'A',
           'inactive-player-b': player.name !== user.name && player.role === 'B'
       }">
-          {{ player.name }}
+        {{ player.name }}
       </div>
-  </div>
+    </div>
     <div class="lobby-code-section">
       <button class="btn invite-btn" (click)="copyInviteLink()" [disabled]="players.length > 1">
         <i class="bi bi-person-plus"></i>
@@ -28,8 +28,8 @@
     <div class="game-modes-column">
       <h2 class="modes-title">Wähle einen Spielmodus</h2>
       <div class="modes-row">
-        <div class="mode" *ngFor="let mode of gameModes" (click)="selectMode(mode.id)"
-          [ngClass]="{'selected': selectedMode?.id === mode.id, 'disabled': user.role !== 'A'}">
+        <div class="mode" *ngFor="let mode of gameModes" (click)="updateMode(mode.id)"
+          [ngClass]="{'selected': selectedMode.id === mode.id, 'disabled': user.role !== 'A'}">
           <div class="card">
             <img [src]="mode.image" class="card-img-top" alt="{{ mode.name }}">
             <div class="card-body">
@@ -43,12 +43,23 @@
 
     <div class="difficulty-slider">
       <h3>Schwierigkeit</h3>
-      <input type="range" min="1" max="3" step="1" [(ngModel)]="selectedDifficultyValue"
-        (change)="user.role === 'A' && updateDifficulty()" list="difficulty-ticks"
+      <input type="range" min="1" max="3" step="1" [ngModel]="DifficultyHelper.toNumber(selectedDifficulty)"
+        (ngModelChange)="updateDifficulty($event)" list="difficulty-ticks"
         [disabled]="!selectedMode || user.role !== 'A'">
-      <datalist id="difficulty-ticks">
-      </datalist>
-      <p>{{ selectedDifficultyLabel }}</p>
+      <!-- <datalist id="difficulty-ticks">
+        <option value="1" label="LEICHT"></option>
+        <option value="2" label="MITTEL"></option>
+        <option value="3" label="SCHWER"></option>
+      </datalist> -->
+      <p>{{ selectedDifficulty }}</p>
+    </div>
+
+    <div class="rounds-slider">
+      <h3>Anzahl der Runden</h3>
+      <input type="range" min="3" max="7" step="2" [(ngModel)]="selectedRounds"
+        (change)="user.role === 'A' && updateRounds()" list="rounds-ticks"
+        [disabled]="!selectedMode || user.role !== 'A'">
+      <p>{{ selectedRounds }}</p>
     </div>
   </div>
 

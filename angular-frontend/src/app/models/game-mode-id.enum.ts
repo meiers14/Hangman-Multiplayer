@@ -1,0 +1,5 @@
+export enum GameModeId {
+    DUELL_ROYALE = 1,
+    CHALLENGE_ARENA,
+    KOOPERATIONSMISSION
+}
