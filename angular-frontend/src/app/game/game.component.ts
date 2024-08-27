@@ -20,14 +20,15 @@ import { WebsocketService } from '../services/websocket.service';
   styleUrls: ['./game.component.css']
 })
 export class GameComponent implements OnInit {
-  // Shared Data
+  // From Shared Data
   lobbyCode: string = '';
   username: string = '';
   selectedMode!: GameMode;
+  selectedDifficulty!: Difficulty;
+  selectedRounds!: number;
 
-  // Database
+  // From Database
   lobby!: Lobby;
-  difficulty: Difficulty = Difficulty.MITTEL;
   players!: Player[];
   user!: Player;
   words!: string[];
@@ -71,6 +72,8 @@ export class GameComponent implements OnInit {
     this.lobbyCode = this.sharedDataService.get('lobbyCode');
     this.username = this.sharedDataService.get('username');
     this.selectedMode = this.sharedDataService.get('selectedMode');
+    this.selectedDifficulty = this.sharedDataService.get('selectedDifficulty');
+    this.selectedDifficulty = this.sharedDataService.get('selectedRounds')
 
     this.rounds = Array(this.maxRounds).fill(null);
     
@@ -111,9 +114,8 @@ export class GameComponent implements OnInit {
         if (lobby.playerA != null && lobby.playerB != null) {
           this.players = [lobby.playerA, lobby.playerB];
         }
-        if (lobby.lobbyDifficulty) {
-          this.difficulty = lobby.lobbyDifficulty;
-        }
+        
+
         
         this.getWords();
 
@@ -137,7 +139,7 @@ export class GameComponent implements OnInit {
   }
 
   getWords(): void {
-    this.gameService.getWordsByDifficulty(this.difficulty).subscribe({
+    this.gameService.getWordsByDifficulty(this.selectedDifficulty).subscribe({
       next: (words) => {
         this.words = words.map((word: { word: any}) => word.word);
         if (this.words.length > 0) {
@@ -237,7 +239,6 @@ export class GameComponent implements OnInit {
     this.gameOver = false;
     this.gameWon = false;
     this.word = this.words[Math.floor(Math.random() * this.words.length)];
-    console.log(this.word);
     this.displayWord = Array(this.word.length).fill('_') as string[];
     this.currentRound++;
     this.sendGameUpdate();
@@ -257,7 +258,6 @@ export class GameComponent implements OnInit {
 
   leaveGame() {
     this.router.navigate(['/lobby'], { queryParams: { code: this.lobbyCode } });
-
   }
 
   private sendGameUpdate() {

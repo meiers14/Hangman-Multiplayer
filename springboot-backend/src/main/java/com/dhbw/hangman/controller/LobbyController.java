@@ -96,6 +96,7 @@ public class LobbyController {
             if (playerName.equals(lobby.getPlayerA().getName())) {
                 if (lobby.getPlayerB() != null) {
                     lobby.setPlayerA(lobby.getPlayerB());
+                    lobby.getPlayerA().setRole("B");;
                     lobby.setPlayerB(null);
                 } else {
                     lobbyRepository.delete(lobby);
