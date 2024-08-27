@@ -39,28 +39,6 @@
   justify-content: center;
 }
 
-/* .counters-row {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-}
-
-.counter {
-  background-color: #f0f0f0;
-  border: 1px solid #333333;
-  border-radius: 5px;
-  font-size: 1.2rem;
-  color: #333333;
-  font-weight: bold;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-  margin: 10px;
-  flex: 1;
-} */
-
 .rounds-title {
   font-size: 1.5rem;
   font-weight: bold;
@@ -91,6 +69,14 @@
 
 .round-player-b {
   background-color: #ae36e1;
+}
+
+.round-red {
+  background-color: #ff4d4d;
+}
+
+.round-green {
+  background-color: #4caf50;
 }
 
 .round-grey {

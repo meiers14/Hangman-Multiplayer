@@ -1,1 +1,98 @@
-<p>duel-royale works!</p>
+<ng-content></ng-content>
+<div class="outer-container">
+    <div class="header text-center my-4">
+        <h1 class="app-title">Hangman Duell Royale</h1>
+        <!-- Hier könnte man auch die selectedMode.description verwenden, bzw. ein anderes Attribut (noch definieren)-->
+        <p class="app-description">Errate das Wort, indem du Buchstaben auswählst. Du hast 6 Leben pro Runde. Das Spiel
+            endet nach 5 Runden.</p>
+    </div>
+    <div class="top-section" *ngIf="lobby">
+        <div class="players">
+            <div class="player-box" *ngFor="let player of players" [ngClass]="{
+                'current-player-a': player.name === currentPlayer.name && player.role === 'A',
+                'current-player-b': player.name === currentPlayer.name && player.role === 'B',
+                'inactive-player-a': player.name !== currentPlayer.name && player.role === 'A',
+                'inactive-player-b': player.name !== currentPlayer.name && player.role === 'B'
+            }">
+                {{ player.name }}
+            </div>
+        </div>
+        <div class="lobby-code-section">
+            <button class="btn copy-btn">
+                <i class="fa fa-copy"></i> {{ lobbyCode }}
+            </button>
+        </div>
+    </div>
+    <div class="content d-flex">
+        <!-- Counters Column -->
+        <div class="counters-column mr-4">
+            <h3 class="rounds-title">Runden</h3>
+            <div class="round-indicators">
+                <div *ngFor="let round of rounds; let i = index" class="round-circle" [ngClass]="{
+                    'round-player-a': round === 'A', 
+                    'round-player-b': round === 'B', 
+                    'round-red': round === 'L',
+                    'round-grey': round === null}">
+                </div>
+            </div>
+            <div class="footer-buttons">
+                <button class="btn btn-primary counter-button" (click)="startNewRound()"
+                    [disabled]="(!gameOver && !gameWon) || (currentRound > maxRounds)">Neue Runde starten</button>
+                <button class="btn btn-danger counter-button" (click)="leaveGame()">Spiel verlassen</button>
+            </div>
+        </div>
+
+        <!-- Game Column -->
+        <div class="game-column flex-grow-1">
+            <div class="game-container">
+                <div class="hangman-image mb-4">
+                    <img [src]="hangmanImage" alt="Hangman">
+                </div>
+                <div class="word mb-4">
+                    <span *ngFor="let char of displayWord">{{ char }}</span>
+                </div>
+                <div class="letters mb-4">
+                    <div class="letter-row">
+                        <button *ngFor="let letter of alphabet.slice(0, 9)" (click)="guessLetter(letter)"
+                            [disabled]="guessedLetters.includes(letter) || gameOver || gameWon">{{ letter }}</button>
+                    </div>
+                    <div class="letter-row">
+                        <button *ngFor="let letter of alphabet.slice(9, 18)" (click)="guessLetter(letter)"
+                            [disabled]="guessedLetters.includes(letter) || gameOver || gameWon">{{ letter }}</button>
+                    </div>
+                    <div class="letter-row">
+                        <button *ngFor="let letter of alphabet.slice(18, 26)" (click)="guessLetter(letter)"
+                            [disabled]="guessedLetters.includes(letter) || gameOver || gameWon">{{ letter }}</button>
+                    </div>
+                </div>
+                <div *ngIf="gameOver" class="game-over mb-4">
+                    <p>Game Over! Das gesuchte Wort war: {{ word }}</p>
+                </div>
+                <div *ngIf="gameWon" class="game-won mb-4">
+                    <p>Glückwunsch! Du hast das Wort erraten: {{ word }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Column -->
+        <div class="chat-column ml-4">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h2>Chat</h2>
+                </div>
+                <div class="chat-messages"
+                    style="height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;">
+                    <div *ngFor="let message of chatMessages" class="chat-message">
+                        <strong>{{ message.sender }}:</strong> {{ message.message }}
+                        <span class="chat-timestamp">{{ message.timestamp }}</span>
+                    </div>
+                </div>
+                <div class="chat-input mt-3 d-flex">
+                    <input type="text" class="form-control mr-2" placeholder="Nachricht eingeben..."
+                        [(ngModel)]="newMessage" (keyup.enter)="sendMessage()">
+                    <button class="btn btn-primary" (click)="sendMessage()">Senden</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
