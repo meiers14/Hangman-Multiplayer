@@ -1,36 +1,29 @@
 <div *ngIf="showWordSelection" class="word-selection-overlay">
     <div class="word-selection-popup">
-      <h2>Wähle ein Wort für deinen Gegner:</h2>
-      <div class="word-options">
-        <button *ngFor="let word of wordOptions" (click)="selectWord(word)">
-          {{ word }}
-        </button>
-      </div>
+        <h2>Wähle ein Wort für deinen Gegner:</h2>
+        <div class="word-options">
+            <button *ngFor="let word of wordOptions" (click)="selectWord(word)">
+                {{ word }}
+            </button>
+        </div>
     </div>
-  </div>
-  
-  <div *ngIf="!showWordSelection">
-    <!-- Hier kommt der restliche HTML-Code der GameComponent hin, z.B. das Hangman-Spiel -->
-    <app-game></app-game>
-  </div>
-  
+</div>
 
 <ng-content></ng-content>
 <div class="outer-container">
     <div class="header text-center my-4">
         <h1 class="app-title">Hangman Challenge Arena</h1>
-        <!-- Hier könnte man auch die selectedMode.description verwenden, bzw. ein anderes Attribut (noch definieren)-->
         <p class="app-description">Errate das Wort, indem du Buchstaben auswählst. Du hast 6 Leben pro Runde. Das Spiel
             endet nach 5 Runden.</p>
     </div>
     <div class="top-section" *ngIf="lobby">
         <div class="players">
             <div class="player-box" *ngFor="let player of players" [ngClass]="{
-                'current-player-a': player.name === currentPlayer.name && player.role === 'A',
-                'current-player-b': player.name === currentPlayer.name && player.role === 'B',
-                'inactive-player-a': player.name !== currentPlayer.name && player.role === 'A',
-                'inactive-player-b': player.name !== currentPlayer.name && player.role === 'B'
-            }">
+                  'current-player-a': player.name === currentPlayer.name && player.role === 'A',
+                  'current-player-b': player.name === currentPlayer.name && player.role === 'B',
+                  'inactive-player-a': player.name !== currentPlayer.name && player.role === 'A',
+                  'inactive-player-b': player.name !== currentPlayer.name && player.role === 'B'
+              }">
                 {{ player.name }}
             </div>
         </div>
@@ -46,12 +39,18 @@
             <h3 class="rounds-title">Runden</h3>
             <div class="round-indicators">
                 <div *ngFor="let round of rounds; let i = index" class="round-circle" [ngClass]="{
-                    'round-green': round === 'W', 
-                    'round-red': round === 'L',
-                    'round-grey': round === null}">
+                      'round-green': round === 'W', 
+                      'round-red': round === 'L',
+                      'round-grey': round === null}">
                 </div>
             </div>
-            <div class="footer-buttons">
+
+            <h3 class="opponent-name">Lebensstand von Gegner</h3>
+            <div class="small-hangman-image mb-4">
+                <img [src]="hangmanImage" alt="Hangman">
+            </div>
+
+            <div class="footer-buttons mt-4">
                 <button class="btn btn-primary counter-button" (click)="startNewRound()"
                     [disabled]="(!gameOver && !gameWon) || (currentRound > maxRounds)">Neue Runde starten</button>
                 <button class="btn btn-danger counter-button" (click)="leaveGame()">Spiel verlassen</button>

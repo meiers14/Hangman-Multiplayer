@@ -377,3 +377,15 @@
   padding: 10px 20px;
   font-size: 1.2em;
 }
+
+.small-hangman-image img {
+  width: 100%;
+  max-width: 150px; 
+}
+
+.opponent-name {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333333;
+  margin-bottom: 10px;
+}
