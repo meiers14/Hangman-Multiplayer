@@ -1,3 +1,20 @@
+<div *ngIf="showWordSelection" class="word-selection-overlay">
+    <div class="word-selection-popup">
+      <h2>Wähle ein Wort für deinen Gegner:</h2>
+      <div class="word-options">
+        <button *ngFor="let word of wordOptions" (click)="selectWord(word)">
+          {{ word }}
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <div *ngIf="!showWordSelection">
+    <!-- Hier kommt der restliche HTML-Code der GameComponent hin, z.B. das Hangman-Spiel -->
+    <app-game></app-game>
+  </div>
+  
+
 <ng-content></ng-content>
 <div class="outer-container">
     <div class="header text-center my-4">

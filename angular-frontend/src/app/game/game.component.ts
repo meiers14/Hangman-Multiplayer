@@ -260,7 +260,7 @@ export class GameComponent implements OnInit {
     this.router.navigate(['/lobby'], { queryParams: { code: this.lobbyCode } });
   }
 
-  private sendGameUpdate() {
+  protected sendGameUpdate() {
     const gameState = {
       word: this.word,
       displayWord: this.displayWord,
