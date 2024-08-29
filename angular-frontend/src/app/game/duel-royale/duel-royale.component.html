@@ -28,16 +28,19 @@
         <div class="counters-column mr-4">
             <h3 class="rounds-title">Runden</h3>
             <div class="round-indicators">
-                <div *ngFor="let round of rounds; let i = index" class="round-circle" [ngClass]="{
-                    'round-player-a': round === 'A', 
-                    'round-player-b': round === 'B', 
-                    'round-red': round === 'L',
-                    'round-grey': round === null}">
+                <div *ngFor="let round of [].constructor(selectedRounds); let i = index"
+                     class="round-circle"
+                     [ngClass]="{
+          'round-player-a': rounds[i] === 'A',
+          'round-player-b': rounds[i] === 'B',
+          'round-red': rounds[i] === 'L',
+          'round-grey': rounds[i] === null
+        }">
                 </div>
             </div>
             <div class="footer-buttons">
                 <button class="btn btn-primary counter-button" (click)="startNewRound()"
-                    [disabled]="(!gameOver && !gameWon) || (currentRound > maxRounds)">Neue Runde starten</button>
+                    [disabled]="(!gameOver && !gameWon) || (currentRound > selectedRounds)">Neue Runde starten</button>
                 <button class="btn btn-danger counter-button" (click)="leaveGame()">Spiel verlassen</button>
             </div>
         </div>
