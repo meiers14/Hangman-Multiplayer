@@ -29,13 +29,13 @@ export class GameComponent implements OnInit {
 
   // From Database
   lobby!: Lobby;
-  players!: Player[];
+  players: Player[] = [];
   user!: Player;
   words!: string[];
 
   // Game 
   alphabet: string[] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-  guessedLetters!: string[];
+  guessedLetters: string[] = [];
 
   word!: string;
   displayWord!: string[];
@@ -73,7 +73,7 @@ export class GameComponent implements OnInit {
     this.username = this.sharedDataService.get('username');
     this.selectedMode = this.sharedDataService.get('selectedMode');
     this.selectedDifficulty = this.sharedDataService.get('selectedDifficulty');
-    this.selectedDifficulty = this.sharedDataService.get('selectedRounds')
+    this.selectedRounds = this.sharedDataService.get('selectedRounds');
 
     this.rounds = Array(this.maxRounds).fill(null);
     
@@ -139,19 +139,23 @@ export class GameComponent implements OnInit {
   }
 
   getWords(): void {
-    this.gameService.getWordsByDifficulty(this.selectedDifficulty).subscribe({
-      next: (words) => {
-        this.words = words.map((word: { word: any}) => word.word);
-        if (this.words.length > 0) {
-          this.startNewRound();
-        } else {
-          console.error('Keine Wörter von der API erhalten.');
+    if (this.selectedDifficulty) {
+      this.gameService.getWordsByDifficulty(this.selectedDifficulty).subscribe({
+        next: (words) => {
+          this.words = words.map((word: { word: any }) => word.word);
+          if (this.words.length > 0) {
+            this.startNewRound();
+          } else {
+            console.error('Keine Wörter von der API erhalten.');
+          }
+        },
+        error: (error) => {
+          console.error('Fehler beim Abrufen der Wörter:', error);
         }
-      },
-      error: (error) => {
-        console.error('Fehler beim Abrufen der Wörter:', error);
-      }
-    });
+      });
+    } else {
+      console.error('Schwierigkeitsgrad ist nicht definiert.');
+    }
   }
 
 
@@ -278,17 +282,17 @@ export class GameComponent implements OnInit {
 
   private updateGameState(gameState: any) {
     if (gameState) {
-      this.word = gameState.word || this.word;
-      this.displayWord = gameState.displayWord || this.displayWord;
-      this.remainingLives = gameState.remainingLives !== undefined ? gameState.remainingLives : this.remainingLives;
-      this.gameOver = gameState.gameOver !== undefined ? gameState.gameOver : this.gameOver;
-      this.gameWon = gameState.gameWon !== undefined ? gameState.gameWon : this.gameWon;
-      this.currentRound = gameState.currentRound !== undefined ? gameState.currentRound : this.currentRound;
-      this.maxRounds = gameState.maxRounds !== undefined ? gameState.maxRounds : this.maxRounds;
-      this.guessedLetters = gameState.guessedLetters || this.guessedLetters;
-      this.currentPlayer = gameState.currentPlayer || this.currentPlayer;
-      this.selectedMode = gameState.selectedMode || this.selectedMode;
-      this.isCurrentPlayer = (this.username === this.currentPlayer.name);
+      this.word = gameState.word ?? this.word;
+      this.displayWord = gameState.displayWord ?? this.displayWord;
+      this.remainingLives = gameState.remainingLives ?? this.remainingLives;
+      this.gameOver = gameState.gameOver ?? this.gameOver;
+      this.gameWon = gameState.gameWon ?? this.gameWon;
+      this.currentRound = gameState.currentRound ?? this.currentRound;
+      this.maxRounds = gameState.maxRounds ?? this.maxRounds;
+      this.guessedLetters = gameState.guessedLetters ?? this.guessedLetters;
+      this.currentPlayer = gameState.currentPlayer ?? this.currentPlayer;
+      this.selectedMode = gameState.selectedMode ?? this.selectedMode;
+      this.isCurrentPlayer = (this.username === this.currentPlayer?.name);
       this.updateHangmanImage();
     }
   }

@@ -226,11 +226,13 @@ export class LobbyComponent implements OnInit {
     }
 
     startGame(): void {
+        this.updateDifficulty(DifficultyHelper.toNumber(this.selectedDifficulty));
+        this.updateRounds();
         // WebSocket-Nachricht senden
         this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
             action: 'start',
             modeId: this.selectedMode.id,
-            difficultyValue: this.selectedDifficulty,
+            difficultyValue: DifficultyHelper.toNumber(this.selectedDifficulty),
             rounds: this.selectedRounds
         });
 

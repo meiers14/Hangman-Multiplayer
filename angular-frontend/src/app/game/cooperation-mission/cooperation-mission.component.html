@@ -9,13 +9,15 @@
     <div class="top-section" *ngIf="lobby">
         <div class="players">
             <div class="player-box" *ngFor="let player of players" [ngClass]="{
-                'current-player-a': player.name === currentPlayer.name && player.role === 'A',
-                'current-player-b': player.name === currentPlayer.name && player.role === 'B',
-                'inactive-player-a': player.name !== currentPlayer.name && player.role === 'A',
-                'inactive-player-b': player.name !== currentPlayer.name && player.role === 'B'
-            }">
-                {{ player.name }}
+    'current-player-a': player?.name === currentPlayer?.name && player?.role === 'A',
+    'current-player-b': player?.name === currentPlayer?.name && player?.role === 'B',
+    'inactive-player-a': player?.name !== currentPlayer?.name && player?.role === 'A',
+    'inactive-player-b': player?.name !== currentPlayer?.name && player?.role === 'B'
+}">
+                {{ player?.name }}
             </div>
+
+
         </div>
         <div class="lobby-code-section">
             <button class="btn copy-btn">
