@@ -64,7 +64,7 @@ export class GameComponent implements OnInit {
         private gameService: GameService,
         private snackBar: MatSnackBar,
         private sharedDataService: SharedDataService,
-        private websocketService: WebsocketService
+        public  websocketService: WebsocketService
     ) {
     }
 
@@ -174,7 +174,7 @@ export class GameComponent implements OnInit {
     handleEnterKey(event: KeyboardEvent) {
         if ((<HTMLElement>event.target).tagName === 'INPUT') {
             this.sendMessage();
-        } else if ((this.gameOver || this.gameWon) && this.currentRound <= this.selectedRounds) {
+        } else if ((this.gameOver || this.gameWon) && this.currentRound < this.selectedRounds) {
             this.startNewRound();
         }
     }
@@ -224,8 +224,7 @@ export class GameComponent implements OnInit {
     }
 
     startNewRound() {
-        if (this.currentRound > this.selectedRounds) {
-            this.gameOver = true;
+        if (this.currentRound >= this.selectedRounds) {
             return;
         }
         if (!this.words || this.words.length === 0) {
@@ -277,7 +276,7 @@ export class GameComponent implements OnInit {
         this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, gameState);
     }
 
-    private updateGameState(gameState: any) {
+    updateGameState(gameState: any) {
         console.log('Received game state update:', gameState);
         if (gameState) {
             this.word = gameState.word ?? this.word;
@@ -296,7 +295,7 @@ export class GameComponent implements OnInit {
         }
     }
 
-    private switchPlayer() {
+    switchPlayer() {
         this.currentPlayer = this.players.find(player => player.name !== this.currentPlayer.name) || this.currentPlayer;
         this.isCurrentPlayer = (this.username === this.currentPlayer.name);
     }
