@@ -14,15 +14,35 @@ export class ChallengeArenaComponent extends GameComponent {
   wordSelectedBySelf: boolean = false; // Trackt, ob man selbst ein Wort für den Gegner ausgewählt hat
 
   override ngOnInit() {
-    super.ngOnInit();
-    this.startNewRound();
+    this.lobbyCode = this.sharedDataService.get('lobbyCode');
+    this.username = this.sharedDataService.get('username');
+    this.selectedMode = this.sharedDataService.get('selectedMode');
+    this.selectedDifficulty = this.sharedDataService.get('selectedDifficulty');
+    this.selectedRounds = this.sharedDataService.get('selectedRounds');
+
+    console.error('Selected Rounds:', this.selectedRounds);
+    this.rounds = Array(this.selectedRounds).fill(null);
+
+
+    this.getLobby();
+
     this.websocketService.isConnected().subscribe(connected => {
       if (connected) {
+        this.websocketService.subscribeToChat(this.lobbyCode, (message) => {
+          const timestamp = new Date().toLocaleTimeString();
+          this.chatMessages.push({
+            sender: message.username || 'Unknown',
+            message: message.message,
+            timestamp
+          });
+        });
+
         this.websocketService.subscribeToGame(this.lobbyCode, (gameState) => {
           this.updateGameState(gameState);
         });
       }
     });
+    this.startNewRound()
   }
 
   override startNewRound() {
@@ -42,7 +62,9 @@ export class ChallengeArenaComponent extends GameComponent {
     this.sendGameUpdate();
   }
 
-  override getWords(){}
+  override getWords(){
+    return;
+  }
 
   getHardcodedWords(): string[] {
     return ['APPLE', 'BANANA', 'CHERRY'];

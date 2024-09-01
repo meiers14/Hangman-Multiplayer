@@ -63,7 +63,7 @@ export class GameComponent implements OnInit {
         private lobbyService: LobbyService,
         private gameService: GameService,
         private snackBar: MatSnackBar,
-        private sharedDataService: SharedDataService,
+        public  sharedDataService: SharedDataService,
         public  websocketService: WebsocketService
     ) {
     }
@@ -74,6 +74,7 @@ export class GameComponent implements OnInit {
         this.selectedMode = this.sharedDataService.get('selectedMode');
         this.selectedDifficulty = this.sharedDataService.get('selectedDifficulty');
         this.selectedRounds = this.sharedDataService.get('selectedRounds');
+
 
         this.rounds = Array(this.selectedRounds).fill(null);
 
@@ -114,7 +115,6 @@ export class GameComponent implements OnInit {
                 }
 
                 this.getWords();
-
                 // Set local user
                 if (this.username === this.players[0].name) {
                     this.user = this.players[0];
