@@ -61,7 +61,7 @@ export class GameComponent implements OnInit {
     constructor(
         private router: Router,
         private lobbyService: LobbyService,
-        private gameService: GameService,
+        public gameService: GameService,
         private snackBar: MatSnackBar,
         public  sharedDataService: SharedDataService,
         public  websocketService: WebsocketService
@@ -75,10 +75,9 @@ export class GameComponent implements OnInit {
         this.selectedDifficulty = this.sharedDataService.get('selectedDifficulty');
         this.selectedRounds = this.sharedDataService.get('selectedRounds');
 
-
         this.rounds = Array(this.selectedRounds).fill(null);
 
-
+        this.sendGameUpdate();
         this.getLobby();
 
         this.websocketService.isConnected().subscribe(connected => {
