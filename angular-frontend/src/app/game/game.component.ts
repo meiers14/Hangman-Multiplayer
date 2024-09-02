@@ -97,6 +97,10 @@ export class GameComponent implements OnInit {
                     this.rounds = Array(this.selectedRounds).fill(null);
                     this.getWords();
                 }
+
+                this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
+                    action: 'request_settings'
+                });
             }
         });
 

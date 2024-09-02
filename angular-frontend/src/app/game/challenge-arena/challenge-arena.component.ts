@@ -47,6 +47,10 @@ export class ChallengeArenaComponent extends GameComponent {
                     this.roundsOpponent = Array(this.selectedRounds).fill(null);
                     this.getWords();
                 }
+
+                this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
+                    action: 'request_settings'
+                });
             }
         });
 
