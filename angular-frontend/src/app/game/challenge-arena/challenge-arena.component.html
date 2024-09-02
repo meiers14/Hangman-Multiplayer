@@ -38,7 +38,7 @@
         <div class="counters-column mr-4">
             <h3 class="rounds-title">Runden</h3>
             <div class="round-indicators">
-                <div *ngFor="let round of [].constructor(selectedRounds); let i = index"
+                <div *ngFor="let round of rounds; let i = index"
                      class="round-circle"
                      [ngClass]="{
           'round-green': rounds[i] === 'W',
@@ -50,12 +50,24 @@
 
             <h3 class="opponent-name">Lebensstand von Gegner</h3>
             <div class="small-hangman-image mb-4">
-                <img [src]="hangmanImage" alt="Hangman">
+                <img [src]="hangmanImageOpponent" alt="Hangman">
+            </div>
+            <h3 class="rounds-title">Runden des Gegners</h3>
+            <div class="round-indicators" *ngIf=" selectedRounds> 0">
+                <div *ngFor="let round of roundsOpponent; let i = index"
+                     class="round-circle"
+                     [ngClass]="{
+          'round-green': roundsOpponent[i] === 'W',
+          'round-red': roundsOpponent[i] === 'L',
+          'round-grey': roundsOpponent[i] === null
+        }">
+                </div>
             </div>
 
             <div class="footer-buttons mt-4">
                 <button class="btn btn-primary counter-button" (click)="startNewRound()"
-                    [disabled]="(!gameOver && !gameWon) || (currentRound > selectedRounds)">Neue Runde starten</button>
+                        [disabled]="(!gameOver && !gameWon) || (currentRound > selectedRounds)">Neue Runde starten
+                </button>
                 <button class="btn btn-danger counter-button" (click)="leaveGame()">Spiel verlassen</button>
             </div>
         </div>
@@ -72,15 +84,18 @@
                 <div class="letters mb-4">
                     <div class="letter-row">
                         <button *ngFor="let letter of alphabet.slice(0, 9)" (click)="guessLetter(letter)"
-                            [disabled]="guessedLetters.includes(letter) || gameOver || gameWon">{{ letter }}</button>
+                                [disabled]="guessedLetters.includes(letter) || gameOver || gameWon">{{ letter }}
+                        </button>
                     </div>
                     <div class="letter-row">
                         <button *ngFor="let letter of alphabet.slice(9, 18)" (click)="guessLetter(letter)"
-                            [disabled]="guessedLetters.includes(letter) || gameOver || gameWon">{{ letter }}</button>
+                                [disabled]="guessedLetters.includes(letter) || gameOver || gameWon">{{ letter }}
+                        </button>
                     </div>
                     <div class="letter-row">
                         <button *ngFor="let letter of alphabet.slice(18, 26)" (click)="guessLetter(letter)"
-                            [disabled]="guessedLetters.includes(letter) || gameOver || gameWon">{{ letter }}</button>
+                                [disabled]="guessedLetters.includes(letter) || gameOver || gameWon">{{ letter }}
+                        </button>
                     </div>
                 </div>
                 <div *ngIf="gameOver" class="game-over mb-4">
@@ -99,7 +114,7 @@
                     <h2>Chat</h2>
                 </div>
                 <div class="chat-messages"
-                    style="height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;">
+                     style="height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;">
                     <div *ngFor="let message of chatMessages" class="chat-message">
                         <strong>{{ message.sender }}:</strong> {{ message.message }}
                         <span class="chat-timestamp">{{ message.timestamp }}</span>
@@ -107,7 +122,7 @@
                 </div>
                 <div class="chat-input mt-3 d-flex">
                     <input type="text" class="form-control mr-2" placeholder="Nachricht eingeben..."
-                        [(ngModel)]="newMessage" (keyup.enter)="sendMessage()">
+                           [(ngModel)]="newMessage" (keyup.enter)="sendMessage()">
                     <button class="btn btn-primary" (click)="sendMessage()">Senden</button>
                 </div>
             </div>

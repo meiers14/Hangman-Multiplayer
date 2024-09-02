@@ -9,10 +9,15 @@ import {GameComponent} from '../game.component';
 export class ChallengeArenaComponent extends GameComponent {
     showWordSelection: boolean = true;
     wordOptions: string[] = [];
-    opponentWordOptions: string[] = []; // Wortoptionen für den Gegner
+    opponentWordOptions: string[] = [];
     wordForOpponent?: string;
-    wordSelectedByOpponent: boolean = false; // Trackt, ob der Gegner sein Wort ausgewählt hat
-    wordSelectedBySelf: boolean = false; // Trackt, ob man selbst ein Wort für den Gegner ausgewählt hat
+    wordSelectedByOpponent: boolean = false;
+    wordSelectedBySelf: boolean = false;
+    hangmanImageOpponent: string = 'assets/hangman0.png';
+    remainingLivesOpponent: number = 6;
+    override isCurrentPlayer: boolean = true;
+    override rounds: string[] = [];
+    roundsOpponent: string[] = [];
 
     override ngOnInit() {
         this.lobbyCode = this.sharedDataService.get('lobbyCode');
@@ -20,9 +25,6 @@ export class ChallengeArenaComponent extends GameComponent {
         this.selectedMode = this.sharedDataService.get('selectedMode');
         this.selectedDifficulty = this.sharedDataService.get('selectedDifficulty');
         this.selectedRounds = this.sharedDataService.get('selectedRounds');
-
-        this.rounds = Array(this.selectedRounds).fill(null);
-        this.getLobby();
 
         this.websocketService.isConnected().subscribe(connected => {
             if (connected) {
@@ -38,25 +40,41 @@ export class ChallengeArenaComponent extends GameComponent {
                 this.websocketService.subscribeToGame(this.lobbyCode, (gameState) => {
                     this.updateGameState(gameState);
                 });
+
+                this.getLobby();
+                if (this.selectedDifficulty != undefined) {
+                    this.rounds = Array(this.selectedRounds).fill(null);
+                    this.roundsOpponent = Array(this.selectedRounds).fill(null);
+                    this.getWords();
+                }
             }
         });
+
+
     }
 
     override startNewRound() {
         if (this.currentRound >= this.selectedRounds) {
             return;
         }
-        this.showWordSelection = true; // Zeige die Wortauswahl an, bis beide Spieler gewählt haben
-        this.wordSelectedBySelf = false; // Reset nach jeder Runde
-        this.wordSelectedByOpponent = false; // Reset nach jeder Runde
+
+        this.showWordSelection = true;
+        this.wordSelectedBySelf = false;
+        this.wordSelectedByOpponent = false;
         this.guessedLetters = [];
         this.remainingLives = 6;
         this.hangmanImage = 'assets/hangman0.png';
+        this.remainingLivesOpponent = 6;
+        this.hangmanImageOpponent = 'assets/hangman0.png';
         this.gameOver = false;
         this.gameWon = false;
         this.currentRound++;
+        if (this.currentRound == 1) {
+            this.sendInitialRounds();
+        }
         this.sendGameUpdate()
     }
+
 
     override getWords(): void {
         if (this.selectedDifficulty) {
@@ -65,10 +83,9 @@ export class ChallengeArenaComponent extends GameComponent {
                     this.words = words.map((word: { word: any }) => word.word);
 
                     if (this.words.length >= 6) {
-
                         const allSelectedWords = this.getRandomWords(this.words, 6);
-                        this.wordOptions = allSelectedWords.slice(0, 3); // 3 Wörter für den aktuellen Spieler
-                        this.opponentWordOptions = allSelectedWords.slice(3, 6); // 3 unterschiedliche Wörter für den Gegner
+                        this.wordOptions = allSelectedWords.slice(0, 3);
+                        this.opponentWordOptions = allSelectedWords.slice(3, 6);
                         this.sendOpponentWordOptions();
                         this.startNewRound();
                     } else {
@@ -90,13 +107,12 @@ export class ChallengeArenaComponent extends GameComponent {
     }
 
     private sendOpponentWordOptions() {
-        const wordOptionsMessage = {
+        const opponentWords = {
             type: 'WORD_OPTIONS',
             selectedBy: this.username,
-            opponentWordOptions: this.opponentWordOptions,
-            lobbyCode: this.lobbyCode
+            opponentWordOptions: this.opponentWordOptions
         };
-        this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, wordOptionsMessage);
+        this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, opponentWords);
     }
 
     selectWord(word: string) {
@@ -105,44 +121,87 @@ export class ChallengeArenaComponent extends GameComponent {
             this.wordSelectedBySelf = true;
             this.sendWordSelection();
             this.checkIfBothSelected();
-            this.sendGameUpdate();
         }
     }
 
     private sendWordSelection() {
-        const selectionMessage = {
+        const wordSelection = {
             type: 'WORD_SELECTION',
             word: this.wordForOpponent,
-            selectedBy: this.username,
-            lobbyCode: this.lobbyCode
+            selectedBy: this.username
         };
-        this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, selectionMessage);
+        this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, wordSelection);
     }
 
     private checkIfBothSelected() {
         if (this.wordSelectedBySelf && this.wordSelectedByOpponent) {
-            // Beide Spieler haben gewählt, das Spiel kann fortgesetzt werden
             this.showWordSelection = false;
         }
     }
 
+    override switchPlayer() {
+        return;
+    }
+
+    protected sendInitialRounds() {
+        const gameState = {
+            type: 'INITIAL_ROUNDS',
+            rounds: this.rounds,
+            selectedBy: this.username,
+            selectedRounds: this.selectedRounds,
+            lobbyCode: this.lobbyCode
+        };
+        console.log('Sending INITIAL_ROUNDS:', gameState);
+        this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, gameState);
+    }
+
+    protected override sendGameUpdate() {
+        const gameState = {
+            currentRound: this.currentRound,
+            selectedRounds: this.selectedRounds,
+            selectedMode: this.selectedMode,
+            rounds: this.rounds,
+            selectedBy: this.username,
+            remainingLives: this.remainingLives,
+            type: 'GAME_STATE'
+        };
+        console.log('Sending game update:', gameState);
+        this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, gameState);
+    }
+
     override updateGameState(gameState: any) {
-        console.log('Received game state update:', gameState);
         if (gameState) {
-            this.currentRound = gameState.currentRound ?? this.currentRound;
-            this.selectedRounds = gameState.selectedRounds ?? this.selectedRounds;
-            this.selectedMode = gameState.selectedMode ?? this.selectedMode;
-            this.rounds = gameState.rounds ?? this.rounds;
-            if (gameState.type === 'WORD_SELECTION') {
-                if (gameState.selectedBy !== this.username) {
-                    this.word = gameState.word;
-                    this.displayWord = Array(this.word.length).fill('_') as string[];
-                    this.wordSelectedByOpponent = true;
-                    this.checkIfBothSelected();
-                }
-            } else if (gameState.type === 'WORD_OPTIONS') {
-                if (gameState.selectedBy !== this.username) {
-                    this.wordOptions = gameState.opponentWordOptions;
+            console.log('Username:', this.username);
+            if (gameState.selectedBy !== this.username) {
+                switch (gameState.type) {
+                    case 'WORD_SELECTION':
+                        this.word = gameState.word;
+                        this.displayWord = Array(this.word.length).fill('_') as string[];
+                        this.wordSelectedByOpponent = true;
+                        this.checkIfBothSelected();
+                        break;
+
+                    case 'WORD_OPTIONS':
+                        this.wordOptions = gameState.opponentWordOptions;
+                        break;
+
+                    case 'INITIAL_ROUNDS':
+                        this.selectedRounds = gameState.selectedRounds ?? this.selectedRounds;
+                        this.rounds = gameState.rounds ?? this.rounds;
+                        this.roundsOpponent = gameState.rounds ?? this.rounds;
+                        this.lobbyCode = gameState.lobbyCode ?? this.lobbyCode;
+                        break;
+
+                    case 'GAME_STATE':
+                        this.remainingLivesOpponent = gameState.remainingLives ?? this.remainingLivesOpponent;
+                        const lifeStageOpponent = 6 - this.remainingLivesOpponent;
+                        this.hangmanImageOpponent = `assets/hangman${lifeStageOpponent}.png`;
+                        this.roundsOpponent = gameState.rounds ?? this.roundsOpponent;
+                        this.currentRound = gameState.currentRound ?? this.currentRound;
+                        break;
+
+                    default:
+                        console.error("Unbekannter Nachrichtentyp:", gameState.type);
                 }
             }
         }

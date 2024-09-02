@@ -30,7 +30,7 @@
         <div class="counters-column mr-4">
             <h3 class="rounds-title">Runden</h3>
             <div class="round-indicators">
-                <div *ngFor="let round of [].constructor(selectedRounds); let i = index"
+                <div *ngFor="let round of rounds; let i = index"
                      class="round-circle"
                      [ngClass]="{
           'round-green': rounds[i] === 'W',

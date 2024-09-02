@@ -75,10 +75,7 @@ export class GameComponent implements OnInit {
         this.selectedDifficulty = this.sharedDataService.get('selectedDifficulty');
         this.selectedRounds = this.sharedDataService.get('selectedRounds');
 
-        this.rounds = Array(this.selectedRounds).fill(null);
 
-        this.sendGameUpdate();
-        this.getLobby();
 
         this.websocketService.isConnected().subscribe(connected => {
             if (connected) {
@@ -94,8 +91,15 @@ export class GameComponent implements OnInit {
                 this.websocketService.subscribeToGame(this.lobbyCode, (gameState) => {
                     this.updateGameState(gameState);
                 });
+
+                this.getLobby();
+                if (this.selectedDifficulty != undefined) {
+                    this.rounds = Array(this.selectedRounds).fill(null);
+                    this.getWords();
+                }
             }
         });
+
     }
 
     getLobby(): void {
@@ -113,7 +117,7 @@ export class GameComponent implements OnInit {
                     this.players = [lobby.playerA, lobby.playerB];
                 }
 
-                this.getWords();
+                // this.getWords();
                 // Set local user
                 if (this.username === this.players[0].name) {
                     this.user = this.players[0];
@@ -269,7 +273,8 @@ export class GameComponent implements OnInit {
             guessedLetters: this.guessedLetters,
             currentPlayer: this.currentPlayer,
             selectedMode: this.selectedMode,
-            rounds: this.rounds
+            rounds: this.rounds,
+            lobbyCode: this.lobbyCode
         };
         console.log('Sending game update:', gameState);
         this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, gameState);
