@@ -5,6 +5,9 @@
         <!-- Hier könnte man auch die selectedMode.description verwenden, bzw. ein anderes Attribut (noch definieren)-->
         <p class="app-description">Errate das Wort, indem du Buchstaben auswählst. Du hast 6 Leben pro Runde. Das Spiel
             endet nach 5 Runden.</p>
+        <button class="btn btn-warning" (click)="returnToLobby()" mat-raised-button color="warn">
+            Zurück zur Lobby
+        </button>
     </div>
     <div class="top-section" *ngIf="lobby">
         <div class="players">

@@ -15,6 +15,9 @@
         <h1 class="app-title">Hangman Challenge Arena</h1>
         <p class="app-description">Errate das Wort, indem du Buchstaben auswählst. Du hast 6 Leben pro Runde. Das Spiel
             endet nach 5 Runden.</p>
+        <button class="btn btn-warning" (click)="returnToLobby()" mat-raised-button color="warn">
+            Zurück zur Lobby
+        </button>
     </div>
     <div class="top-section" *ngIf="lobby">
         <div class="players">
@@ -66,7 +69,7 @@
 
             <div class="footer-buttons mt-4">
                 <button class="btn btn-primary counter-button" (click)="startNewRound()"
-                        [disabled]="(!gameOver && !gameWon) || (currentRound > selectedRounds)">Neue Runde starten
+                        [disabled]="(!gameOver && !gameWon) || (currentRound > selectedRounds) || !opponentFinished">Neue Runde starten
                 </button>
                 <button class="btn btn-danger counter-button" (click)="leaveGame()">Spiel verlassen</button>
             </div>

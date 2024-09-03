@@ -1,5 +1,8 @@
-import {Component} from '@angular/core';
-import {GameComponent} from '../game.component';
+import { Component } from '@angular/core';
+import { GameComponent } from '../game.component';
+import { Difficulty } from '../../models/difficulty.enum';
+import { Player } from '../../models/player';
+import { Lobby } from '../../models/lobby';
 
 @Component({
     selector: 'app-challenge-arena',
@@ -18,13 +21,14 @@ export class ChallengeArenaComponent extends GameComponent {
     override isCurrentPlayer: boolean = true;
     override rounds: string[] = [];
     roundsOpponent: string[] = [];
+    opponentFinished: boolean = false;
+    override user!: Player;
 
-    override ngOnInit() {
-        this.lobbyCode = this.sharedDataService.get('lobbyCode');
-        this.username = this.sharedDataService.get('username');
-        this.selectedMode = this.sharedDataService.get('selectedMode');
-        this.selectedDifficulty = this.sharedDataService.get('selectedDifficulty');
-        this.selectedRounds = this.sharedDataService.get('selectedRounds');
+    override async  ngOnInit() {
+        this.lobbyCode = this.sharedDataService.get('lobbyCode') ?? '';
+        this.username = this.sharedDataService.get('username') ?? '';
+        this.selectedDifficulty = this.sharedDataService.get('selectedDifficulty') ?? Difficulty.MITTEL;
+        this.selectedRounds = this.sharedDataService.get('selectedRounds') ?? 0;
 
         this.websocketService.isConnected().subscribe(connected => {
             if (connected) {
@@ -38,33 +42,86 @@ export class ChallengeArenaComponent extends GameComponent {
                 });
 
                 this.websocketService.subscribeToGame(this.lobbyCode, (gameState) => {
-                    this.updateGameState(gameState);
+                    if (gameState) {
+                        if (gameState.action === 'return_to_lobby') {
+                            this.router.navigate(['/lobby'], { queryParams: { code: this.lobbyCode } });
+                        } else {
+                            this.updateGameState(gameState);
+                        }
+                    }
                 });
 
-                this.getLobby();
-                if (this.selectedDifficulty != undefined) {
-                    this.rounds = Array(this.selectedRounds).fill(null);
-                    this.roundsOpponent = Array(this.selectedRounds).fill(null);
-                    this.getWords();
-                }
-
                 this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
-                    action: 'request_settings'
                 });
             }
         });
 
-
+        await this.initializeGame();
     }
 
+    override async initializeGame() {
+        try {
+            this.getLobby();
+            if (this.selectedRounds !== 0) {
+                this.rounds = Array(this.selectedRounds).fill(null);
+                this.roundsOpponent = Array(this.selectedRounds).fill(null);
+                this.sendGameUpdate();
+                this.getWords();
+            }
+        } catch (error) {
+            console.error('Fehler bei der Initialisierung des Spiels:', error);
+        }
+    }
+
+    override getLobby(): void {
+        // API call returns Lobby object
+        this.lobbyService.getLobbyByCode(this.lobbyCode).subscribe({
+            next: (lobby: Lobby) => {
+                if (!lobby || lobby === null) {
+                    // Navigate to Home Component if no lobby object was found
+                    this.router.navigate(['/']);
+                    throw new Error('Lobby ist null oder nicht gefunden');
+                }
+                // Set local variables
+                this.lobby = lobby;
+                if (lobby.playerA != null && lobby.playerB != null) {
+                    this.players = [lobby.playerA, lobby.playerB];
+                }
+
+                // Set local user
+                if (this.username === this.players[0].name) {
+                    this.user = this.players[0];
+                    this.isCurrentPlayer = true;
+                    this.currentPlayer = this.user
+                } else {
+                    this.user = this.players[1];
+                    this.currentPlayer = this.user
+                }
+            },
+            error: (error) => {
+                console.error('Fehler:', error);
+                this.snackBar.open('Fehler beim Abrufen der Lobby', 'Schließen', {duration: 3000});
+            }
+        });
+    }
     override startNewRound() {
         if (this.currentRound >= this.selectedRounds) {
             return;
         }
 
+        if (!this.words || this.words.length === 0) {
+            console.error('Keine Wörter verfügbar.');
+            return;
+        }
+
+        const allSelectedWords = this.getRandomWords(this.words, 6);
+        this.wordOptions = allSelectedWords.slice(0, 3);
+        this.opponentWordOptions = allSelectedWords.slice(3, 6);
+        this.sendOpponentWordOptions();
         this.showWordSelection = true;
         this.wordSelectedBySelf = false;
         this.wordSelectedByOpponent = false;
+        this.opponentFinished = false;
         this.guessedLetters = [];
         this.remainingLives = 6;
         this.hangmanImage = 'assets/hangman0.png';
@@ -79,7 +136,6 @@ export class ChallengeArenaComponent extends GameComponent {
         this.sendGameUpdate()
     }
 
-
     override getWords(): void {
         if (this.selectedDifficulty) {
             this.gameService.getWordsByDifficulty(this.selectedDifficulty).subscribe({
@@ -87,10 +143,6 @@ export class ChallengeArenaComponent extends GameComponent {
                     this.words = words.map((word: { word: any }) => word.word);
 
                     if (this.words.length >= 6) {
-                        const allSelectedWords = this.getRandomWords(this.words, 6);
-                        this.wordOptions = allSelectedWords.slice(0, 3);
-                        this.opponentWordOptions = allSelectedWords.slice(3, 6);
-                        this.sendOpponentWordOptions();
                         this.startNewRound();
                     } else {
                         console.error('Nicht genügend Wörter von der API erhalten.');
@@ -159,14 +211,15 @@ export class ChallengeArenaComponent extends GameComponent {
         this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, gameState);
     }
 
-    protected override sendGameUpdate() {
+    override sendGameUpdate() {
         const gameState = {
             currentRound: this.currentRound,
             selectedRounds: this.selectedRounds,
-            selectedMode: this.selectedMode,
             rounds: this.rounds,
             selectedBy: this.username,
             remainingLives: this.remainingLives,
+            gameOver: this.gameOver,
+            gameWon: this.gameWon,
             type: 'GAME_STATE'
         };
         console.log('Sending game update:', gameState);
@@ -202,6 +255,11 @@ export class ChallengeArenaComponent extends GameComponent {
                         this.hangmanImageOpponent = `assets/hangman${lifeStageOpponent}.png`;
                         this.roundsOpponent = gameState.rounds ?? this.roundsOpponent;
                         this.currentRound = gameState.currentRound ?? this.currentRound;
+
+                        // Check if opponent finished their round
+                        if (gameState.gameOver || gameState.gameWon) {
+                            this.opponentFinished = true;
+                        }
                         break;
 
                     default:
