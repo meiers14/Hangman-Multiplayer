@@ -172,7 +172,7 @@ export class ChallengeArenaComponent extends GameComponent {
     }
 
     selectWord(word: string) {
-        if (this.isCurrentPlayer && !this.wordForOpponent) {
+        if (this.isCurrentPlayer) {
             this.wordForOpponent = word;
             this.wordSelectedBySelf = true;
             this.sendWordSelection();
@@ -220,6 +220,8 @@ export class ChallengeArenaComponent extends GameComponent {
             remainingLives: this.remainingLives,
             gameOver: this.gameOver,
             gameWon: this.gameWon,
+            showWordSelection: this.showWordSelection,
+            opponentFinished: this.opponentFinished,
             type: 'GAME_STATE'
         };
         console.log('Sending game update:', gameState);
@@ -259,6 +261,19 @@ export class ChallengeArenaComponent extends GameComponent {
                         // Check if opponent finished their round
                         if (gameState.gameOver || gameState.gameWon) {
                             this.opponentFinished = true;
+                        }
+                        if (gameState.showWordSelection) {
+                            this.wordSelectedBySelf = false;
+                            this.wordSelectedByOpponent = false;
+                            this.showWordSelection = true;
+                            this.opponentFinished = false;
+                            this.guessedLetters = [];
+                            this.remainingLives = 6;
+                            this.hangmanImage = 'assets/hangman0.png';
+                            this.remainingLivesOpponent = 6;
+                            this.hangmanImageOpponent = 'assets/hangman0.png';
+                            this.gameOver = false;
+                            this.gameWon = false;
                         }
                         break;
 
