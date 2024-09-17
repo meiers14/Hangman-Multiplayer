@@ -10,6 +10,11 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    /**
+     * Registers STOMP endpoints for WebSocket communication.
+     *
+     * @param registry The StompEndpointRegistry to configure.
+     */
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/chat").setAllowedOrigins("*");
@@ -17,6 +22,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/game").setAllowedOrigins("*");
     }
 
+    /**
+     * Configures the message broker for routing messages.
+     *
+     * @param config The MessageBrokerRegistry to configure.
+     */
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config.enableSimpleBroker("/topic");

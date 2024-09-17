@@ -24,6 +24,13 @@ public class HangmanApplication {
         SpringApplication.run(HangmanApplication.class, args);
     }
 
+    /**
+     * Initializes the database with default words.
+     *
+     * @param wordRepository The WordRepository to interact with the database.
+     * @param initDatabase Flag indicating whether to initialize the database.
+     * @return A CommandLineRunner that runs the initialization logic.
+     */
     @Bean
     CommandLineRunner run(WordRepository wordRepository, @Value("${INIT_DATABASE:false}") boolean initDatabase) {
         return args -> {
@@ -36,8 +43,13 @@ public class HangmanApplication {
         };
     }
 
+    /**
+     * Populates the database with default words based on different difficulty levels.
+     *
+     * @param wordRepository The WordRepository to save the words.
+     */
     @Transactional
-    private void initializeDatabase(WordRepository wordRepository) {
+    protected void initializeDatabase(WordRepository wordRepository) {
         System.out.println("Initializing database with default words...");
         addWordsFromFile("words/easyWords.txt", Difficulty.LEICHT, wordRepository);
         addWordsFromFile("words/mediumWords.txt", Difficulty.MITTEL, wordRepository);
@@ -45,6 +57,13 @@ public class HangmanApplication {
         System.out.println("Database initialization completed.");
     }
 
+    /**
+     * Reads words from a file and saves them to the database if they don't already exist.
+     *
+     * @param fileName The path to the file containing the words.
+     * @param difficulty The difficulty level associated with the words.
+     * @param wordRepository The WordRepository for database operations.
+     */
     private void addWordsFromFile(String fileName, Difficulty difficulty, WordRepository wordRepository) {
         wordRepository.findByWordDifficulty(difficulty).forEach(word -> {
             System.out.println("Existing word: " + word.getWord() + " [" + difficulty + "]");
