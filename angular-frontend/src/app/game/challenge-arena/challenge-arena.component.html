@@ -15,16 +15,19 @@
         <h1 class="app-title">Hangman Challenge Arena</h1>
         <p class="app-description">Errate das Wort, indem du Buchstaben auswählst. Du hast 6 Leben pro Runde. Das Spiel
             endet nach 5 Runden.</p>
+        <button class="btn btn-warning" (click)="returnToLobby()" mat-raised-button color="warn">
+            Zurück zur Lobby
+        </button>
     </div>
     <div class="top-section" *ngIf="lobby">
         <div class="players">
             <div class="player-box" *ngFor="let player of players" [ngClass]="{
-                  'current-player-a': player.name === currentPlayer.name && player.role === 'A',
-                  'current-player-b': player.name === currentPlayer.name && player.role === 'B',
-                  'inactive-player-a': player.name !== currentPlayer.name && player.role === 'A',
-                  'inactive-player-b': player.name !== currentPlayer.name && player.role === 'B'
-              }">
-                {{ player.name }}
+    'current-player-a': player?.name === currentPlayer?.name && player?.role === 'A',
+    'current-player-b': player?.name === currentPlayer?.name && player?.role === 'B',
+    'inactive-player-a': player?.name !== currentPlayer?.name && player?.role === 'A',
+    'inactive-player-b': player?.name !== currentPlayer?.name && player?.role === 'B'
+}">
+                {{ player?.name }}
             </div>
         </div>
         <div class="lobby-code-section">
@@ -38,21 +41,36 @@
         <div class="counters-column mr-4">
             <h3 class="rounds-title">Runden</h3>
             <div class="round-indicators">
-                <div *ngFor="let round of rounds; let i = index" class="round-circle" [ngClass]="{
-                      'round-green': round === 'W', 
-                      'round-red': round === 'L',
-                      'round-grey': round === null}">
+                <div *ngFor="let round of rounds; let i = index"
+                     class="round-circle"
+                     [ngClass]="{
+          'round-green': rounds[i] === 'W',
+          'round-red': rounds[i] === 'L',
+          'round-grey': rounds[i] === null
+        }">
                 </div>
             </div>
 
             <h3 class="opponent-name">Lebensstand von Gegner</h3>
             <div class="small-hangman-image mb-4">
-                <img [src]="hangmanImage" alt="Hangman">
+                <img [src]="hangmanImageOpponent" alt="Hangman">
+            </div>
+            <h3 class="rounds-title">Runden des Gegners</h3>
+            <div class="round-indicators" *ngIf=" selectedRounds> 0">
+                <div *ngFor="let round of roundsOpponent; let i = index"
+                     class="round-circle"
+                     [ngClass]="{
+          'round-green': roundsOpponent[i] === 'W',
+          'round-red': roundsOpponent[i] === 'L',
+          'round-grey': roundsOpponent[i] === null
+        }">
+                </div>
             </div>
 
             <div class="footer-buttons mt-4">
                 <button class="btn btn-primary counter-button" (click)="startNewRound()"
-                    [disabled]="(!gameOver && !gameWon) || (currentRound > maxRounds)">Neue Runde starten</button>
+                        [disabled]="(!gameOver && !gameWon) || (currentRound > selectedRounds) || !opponentFinished || user?.role != 'A'">Neue Runde starten
+                </button>
                 <button class="btn btn-danger counter-button" (click)="leaveGame()">Spiel verlassen</button>
             </div>
         </div>
@@ -69,15 +87,18 @@
                 <div class="letters mb-4">
                     <div class="letter-row">
                         <button *ngFor="let letter of alphabet.slice(0, 9)" (click)="guessLetter(letter)"
-                            [disabled]="guessedLetters.includes(letter) || gameOver || gameWon">{{ letter }}</button>
+                                [disabled]="guessedLetters.includes(letter) || gameOver || gameWon">{{ letter }}
+                        </button>
                     </div>
                     <div class="letter-row">
                         <button *ngFor="let letter of alphabet.slice(9, 18)" (click)="guessLetter(letter)"
-                            [disabled]="guessedLetters.includes(letter) || gameOver || gameWon">{{ letter }}</button>
+                                [disabled]="guessedLetters.includes(letter) || gameOver || gameWon">{{ letter }}
+                        </button>
                     </div>
                     <div class="letter-row">
                         <button *ngFor="let letter of alphabet.slice(18, 26)" (click)="guessLetter(letter)"
-                            [disabled]="guessedLetters.includes(letter) || gameOver || gameWon">{{ letter }}</button>
+                                [disabled]="guessedLetters.includes(letter) || gameOver || gameWon">{{ letter }}
+                        </button>
                     </div>
                 </div>
                 <div *ngIf="gameOver" class="game-over mb-4">
@@ -96,7 +117,7 @@
                     <h2>Chat</h2>
                 </div>
                 <div class="chat-messages"
-                    style="height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;">
+                     style="height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;">
                     <div *ngFor="let message of chatMessages" class="chat-message">
                         <strong>{{ message.sender }}:</strong> {{ message.message }}
                         <span class="chat-timestamp">{{ message.timestamp }}</span>
@@ -104,7 +125,7 @@
                 </div>
                 <div class="chat-input mt-3 d-flex">
                     <input type="text" class="form-control mr-2" placeholder="Nachricht eingeben..."
-                        [(ngModel)]="newMessage" (keyup.enter)="sendMessage()">
+                           [(ngModel)]="newMessage" (keyup.enter)="sendMessage()">
                     <button class="btn btn-primary" (click)="sendMessage()">Senden</button>
                 </div>
             </div>

@@ -5,17 +5,22 @@
         <!-- Hier könnte man auch die selectedMode.description verwenden, bzw. ein anderes Attribut (noch definieren)-->
         <p class="app-description">Errate das Wort, indem du Buchstaben auswählst. Du hast 6 Leben pro Runde. Das Spiel
             endet nach 5 Runden.</p>
+        <button class="btn btn-warning" (click)="returnToLobby()" mat-raised-button color="warn">
+            Zurück zur Lobby
+        </button>
     </div>
     <div class="top-section" *ngIf="lobby">
         <div class="players">
             <div class="player-box" *ngFor="let player of players" [ngClass]="{
-                'current-player-a': player.name === currentPlayer.name && player.role === 'A',
-                'current-player-b': player.name === currentPlayer.name && player.role === 'B',
-                'inactive-player-a': player.name !== currentPlayer.name && player.role === 'A',
-                'inactive-player-b': player.name !== currentPlayer.name && player.role === 'B'
-            }">
-                {{ player.name }}
+    'current-player-a': player?.name === currentPlayer?.name && player?.role === 'A',
+    'current-player-b': player?.name === currentPlayer?.name && player?.role === 'B',
+    'inactive-player-a': player?.name !== currentPlayer?.name && player?.role === 'A',
+    'inactive-player-b': player?.name !== currentPlayer?.name && player?.role === 'B'
+}">
+                {{ player?.name }}
             </div>
+
+
         </div>
         <div class="lobby-code-section">
             <button class="btn copy-btn">
@@ -28,15 +33,18 @@
         <div class="counters-column mr-4">
             <h3 class="rounds-title">Runden</h3>
             <div class="round-indicators">
-                <div *ngFor="let round of rounds; let i = index" class="round-circle" [ngClass]="{
-                    'round-green': round === 'W', 
-                    'round-red': round === 'L',
-                    'round-grey': round === null}">
+                <div *ngFor="let round of rounds; let i = index"
+                     class="round-circle"
+                     [ngClass]="{
+          'round-green': rounds[i] === 'W',
+          'round-red': rounds[i] === 'L',
+          'round-grey': rounds[i] === null
+        }">
                 </div>
             </div>
             <div class="footer-buttons">
                 <button class="btn btn-primary counter-button" (click)="startNewRound()"
-                    [disabled]="(!gameOver && !gameWon) || (currentRound > maxRounds)">Neue Runde starten</button>
+                    [disabled]="(!gameOver && !gameWon) || (currentRound > selectedRounds)">Neue Runde starten</button>
                 <button class="btn btn-danger counter-button" (click)="leaveGame()">Spiel verlassen</button>
             </div>
         </div>

@@ -120,7 +120,7 @@ export class LobbyComponent implements OnInit {
                 action: 'update_settings',
                 modeId: this.selectedMode.id,
                 difficultyValue: DifficultyHelper.toNumber(this.selectedDifficulty),
-                rounds: this.selectedRounds
+                selectedRounds: this.selectedRounds
             });
         }
     }
@@ -155,7 +155,7 @@ export class LobbyComponent implements OnInit {
                     action: 'update_settings',
                     modeId: this.selectedMode.id,
                     difficultyValue: DifficultyHelper.toNumber(this.selectedDifficulty),
-                    rounds: this.selectedRounds
+                    selectedRounds: this.selectedRounds
                 });
             }
         } else if (update.action === 'update_settings') {
@@ -172,8 +172,8 @@ export class LobbyComponent implements OnInit {
             }
     
             // Verarbeite das Update für die Rundenanzahl
-            if (update.rounds !== undefined) {
-                this.selectedRounds = update.rounds;
+            if (update.selectedRounds !== undefined) {
+                this.selectedRounds = update.selectedRounds;
             }
     
             console.log('Settings updated:', this.selectedMode, this.selectedDifficulty, this.selectedRounds);
@@ -205,7 +205,7 @@ export class LobbyComponent implements OnInit {
     
         this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
             action: 'update_settings',
-            rounds: this.selectedRounds
+            selectedRounds: this.selectedRounds
         });
     }
     
@@ -226,12 +226,14 @@ export class LobbyComponent implements OnInit {
     }
 
     startGame(): void {
+        this.updateDifficulty(DifficultyHelper.toNumber(this.selectedDifficulty));
+        this.updateRounds();
         // WebSocket-Nachricht senden
         this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
             action: 'start',
             modeId: this.selectedMode.id,
-            difficultyValue: this.selectedDifficulty,
-            rounds: this.selectedRounds
+            difficultyValue: DifficultyHelper.toNumber(this.selectedDifficulty),
+            selectedRounds: this.selectedRounds
         });
 
         // Weiterleitung für Spieler A

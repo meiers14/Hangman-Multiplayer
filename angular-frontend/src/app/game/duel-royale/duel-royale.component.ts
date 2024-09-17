@@ -4,8 +4,45 @@ import { GameComponent } from '../game.component';
 @Component({
   selector: 'app-duel-royale',
   templateUrl: './duel-royale.component.html',
-  styleUrl: '../game.component.css'
+  styleUrls: ['../game.component.css']
 })
 export class DuelRoyaleComponent extends GameComponent {
+  override guessLetter(letter: string) {
+    if (!this.isCurrentPlayer || this.gameOver || this.gameWon) return;
 
+    this.guessedLetters.push(letter);
+    if (this.word.includes(letter)) {
+      // Display guessed letter if it is correct
+      for (let i = 0; i < this.word.length; i++) {
+        if (this.word[i] === letter) {
+          this.displayWord[i] = letter;
+        }
+      }
+      this.updateHangmanImage();
+      this.sendGameUpdate();
+      this.checkWin();
+    } else {
+      this.remainingLives--;
+      // Game is over if no lives remain befor finish guessing the word
+      if (this.remainingLives <= 0) {
+        this.remainingLives = 0;
+        this.rounds[this.currentRound - 1] = this.user.role;
+        this.gameOver = true;
+      }
+      this.updateHangmanImage();
+      this.switchPlayer();
+      this.sendGameUpdate();
+    }
+  }
+
+
+  override checkWin() {
+    if (this.displayWord.join('') === this.word) {
+      this.gameWon = true;
+      this.wins++;
+      this.rounds[this.currentRound - 1] = this.user.role;
+      this.switchPlayer();
+      this.sendGameUpdate();
+    }
+  }
 }
