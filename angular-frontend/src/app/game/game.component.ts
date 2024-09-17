@@ -22,20 +22,20 @@ export class GameComponent implements OnInit {
     // From Shared Data
     lobbyCode: string = '';
     username: string = '';
-    selectedDifficulty: Difficulty = Difficulty.MITTEL; // Verwende einen Standardwert für Difficulty
-    selectedRounds: number = 0; // Initialisiere mit 0 oder einem anderen Standardwert
+    selectedDifficulty: Difficulty = Difficulty.MITTEL;
+    selectedRounds: number = 0;
 
-// From Database
-    lobby!: Lobby; // Initialisiere mit einer neuen Instanz von Lobby oder einem Dummy-Wert
+    // From Database
+    lobby!: Lobby;
     players: Player[] = [];
-    user!: Player; // Initialisiere mit einer neuen Instanz von Player oder einem Dummy-Wert
+    user!: Player;
     words: string[] = [];
 
-// Game
+    // Game
     alphabet: string[] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
     guessedLetters: string[] = [];
 
-    word: string = ''; // Initialisiere mit einem leeren String
+    word: string = '';
     displayWord: string[] = [];
 
     remainingLives: number = 6;
@@ -137,7 +137,7 @@ export class GameComponent implements OnInit {
                     this.currentPlayer = this.user
                 } else {
                      this.user = this.players[1];
-                 }
+                }
             },
             error: (error) => {
                 console.error('Fehler:', error);
@@ -267,8 +267,12 @@ export class GameComponent implements OnInit {
         }
     }
 
-    leaveGame() {
-        this.router.navigate(['/lobby'], {queryParams: {code: this.lobbyCode}});
+    returnToLobby() {
+        this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
+            action: 'return_to_lobby'
+        });
+
+        this.router.navigate(['/lobby'], { queryParams: { code: this.lobbyCode } });
     }
 
     sendGameUpdate() {
@@ -310,13 +314,5 @@ export class GameComponent implements OnInit {
     switchPlayer() {
         this.currentPlayer = this.players.find(player => player.name !== this.currentPlayer.name) || this.currentPlayer;
         this.isCurrentPlayer = (this.username === this.currentPlayer.name);
-    }
-
-    returnToLobby() {
-        this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
-            action: 'return_to_lobby'
-        });
-
-        this.router.navigate(['/lobby'], { queryParams: { code: this.lobbyCode } });
     }
 }
