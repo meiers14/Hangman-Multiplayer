@@ -17,12 +17,8 @@ export class LobbyService {
   }
 
   joinLobby(lobby: Lobby): Observable<string> {
-    // const params = new HttpParams()
-    //   .set('lobbyCode', lobbyCode)
-    //   .set('playerB', playerB);
     return this.http.put<string>(`${this.apiUrl}/joinLobby`, lobby, { responseType: 'text' as 'json' });
   }
-  
 
   getLobbyByCode(lobbyCode: string): Observable<Lobby> {
     const params = new HttpParams()

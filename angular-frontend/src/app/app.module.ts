@@ -20,7 +20,6 @@ const routes: Routes = [
   { path: 'game1', component: DuelRoyaleComponent },
   { path: 'game2', component: ChallengeArenaComponent },
   { path: 'game3', component: CooperationMissionComponent },
-  // Weitere Routen hier hinzufügen
 ];
 
 @NgModule({

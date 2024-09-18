@@ -44,20 +44,15 @@
     <div class="difficulty-slider">
       <h3>Schwierigkeit</h3>
       <input type="range" min="1" max="3" step="1" [ngModel]="DifficultyHelper.toNumber(selectedDifficulty)"
-        (ngModelChange)="updateDifficulty($event)" list="difficulty-ticks"
+        (ngModelChange)="updateDifficulty($event)"
         [disabled]="!selectedMode || user.role !== 'A'">
-      <!-- <datalist id="difficulty-ticks">
-        <option value="1" label="LEICHT"></option>
-        <option value="2" label="MITTEL"></option>
-        <option value="3" label="SCHWER"></option>
-      </datalist> -->
       <p>{{ selectedDifficulty }}</p>
     </div>
 
     <div class="rounds-slider">
       <h3>Anzahl der Runden</h3>
       <input type="range" min="3" max="7" step="2" [(ngModel)]="selectedRounds"
-        (change)="user.role === 'A' && updateRounds()" list="rounds-ticks"
+        (change)="user.role === 'A' && updateRounds()"
         [disabled]="!selectedMode || user.role !== 'A'">
       <p>{{ selectedRounds }}</p>
     </div>

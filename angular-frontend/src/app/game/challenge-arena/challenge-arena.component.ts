@@ -74,21 +74,17 @@ export class ChallengeArenaComponent extends GameComponent {
     }
 
     override getLobby(): void {
-        // API call returns Lobby object
         this.lobbyService.getLobbyByCode(this.lobbyCode).subscribe({
             next: (lobby: Lobby) => {
                 if (!lobby || lobby === null) {
-                    // Navigate to Home Component if no lobby object was found
                     this.router.navigate(['/']);
                     throw new Error('Lobby ist null oder nicht gefunden');
                 }
-                // Set local variables
                 this.lobby = lobby;
                 if (lobby.playerA != null && lobby.playerB != null) {
                     this.players = [lobby.playerA, lobby.playerB];
                 }
 
-                // Set local user
                 if (this.username === this.players[0].name) {
                     this.user = this.players[0];
                     this.isCurrentPlayer = true;
@@ -207,7 +203,6 @@ export class ChallengeArenaComponent extends GameComponent {
             selectedRounds: this.selectedRounds,
             lobbyCode: this.lobbyCode
         };
-        console.log('Sending INITIAL_ROUNDS:', gameState);
         this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, gameState);
     }
 
@@ -224,13 +219,11 @@ export class ChallengeArenaComponent extends GameComponent {
             opponentFinished: this.opponentFinished,
             type: 'GAME_STATE'
         };
-        console.log('Sending game update:', gameState);
         this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, gameState);
     }
 
     override updateGameState(gameState: any) {
         if (gameState) {
-            console.log('Username:', this.username);
             if (gameState.selectedBy !== this.username) {
                 switch (gameState.type) {
                     case 'WORD_SELECTION':
@@ -258,7 +251,6 @@ export class ChallengeArenaComponent extends GameComponent {
                         this.roundsOpponent = gameState.rounds ?? this.roundsOpponent;
                         this.currentRound = gameState.currentRound ?? this.currentRound;
 
-                        // Check if opponent finished their round
                         if (gameState.gameOver || gameState.gameWon) {
                             this.opponentFinished = true;
                         }

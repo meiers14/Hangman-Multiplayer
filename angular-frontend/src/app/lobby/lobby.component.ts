@@ -2,19 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SharedDataService } from '../services/shared-data.service';
-
-// Models
 import { Lobby } from '../models/lobby';
 import { Difficulty } from '../models/difficulty.enum';
 import { GameMode } from '../models/game-mode';
 import { GameModeId } from '../models/game-mode-id.enum';
 import { Player } from '../models/player';
-
-// Services
 import { LobbyService } from '../services/lobby.service';
 import { WebsocketService } from '../services/websocket.service';
-
-// Helper and Configs
 import { DifficultyHelper } from '../helper/DifficultyHelper';
 import { GAME_MODES } from '../configs/game-modes.config';
 
@@ -24,19 +18,12 @@ import { GAME_MODES } from '../configs/game-modes.config';
     styleUrls: ['./lobby.component.css']
 })
 export class LobbyComponent implements OnInit {
-    // From Shared Data
     lobbyCode: string = '';
     username: string = '';
-
-    // From Database
     lobby!: Lobby;
     players: Player[] = [];
     user!: Player;
-
-    // From Config
     gameModes: GameMode[] = GAME_MODES;
-
-    // Lobby Settings stored in Shared Data
     selectedDifficulty: Difficulty = Difficulty.MITTEL;
     DifficultyHelper = DifficultyHelper;
     selectedMode: GameMode = this.gameModes.find(mode => mode.id === GameModeId.DUELL_ROYALE)!;
@@ -65,8 +52,7 @@ export class LobbyComponent implements OnInit {
                 this.websocketService.subscribeToGame(this.lobbyCode, (update: any) => {
                     this.handleLobbySettingsUpdate(update);
                 });
-    
-                // Wenn der Spieler B der Lobby beitritt, fordert er die aktuellen Einstellungen von Spieler A an
+
                 this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
                     action: 'request_settings'
                 });
@@ -75,11 +61,9 @@ export class LobbyComponent implements OnInit {
     }    
 
     getLobby(): void {
-        // API call returns Lobby object
         this.lobbyService.getLobbyByCode(this.lobbyCode).subscribe({
             next: (lobby: Lobby) => {
                 if (!lobby || lobby === null) {
-                    // Navigate to Home Component if no lobby object was found
                     this.router.navigate(['/']);
                     throw new Error('Lobby ist null oder nicht gefunden');
                 }
@@ -93,28 +77,22 @@ export class LobbyComponent implements OnInit {
     }
 
     handleLobbyUpdate(lobby: Lobby): void {
-        console.log('Lobby updated:', lobby);
-    
-        // Setze die Lobby-Daten
         this.lobby = lobby;
-    
-        // Setze die Spieler
         this.players = [];
+
         if (this.lobby.playerA) {
             this.players.push(this.lobby.playerA);
         }
         if (this.lobby.playerB) {
             this.players.push(this.lobby.playerB);
         }
-    
-        // Set local user and role
+
         if (this.username === this.players[0].name) {
             this.user = this.players[0];
         } else {
             this.user = this.players[1];
         }
-    
-        // Senden Sie die aktuellen Einstellungen über WebSocket, wenn Spieler A ist
+
         if (this.user.role === 'A') {
             this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
                 action: 'update_settings',
@@ -127,10 +105,8 @@ export class LobbyComponent implements OnInit {
     
 
     handleLobbySettingsUpdate(update: any): void {
-        console.log('Received update:', update);
     
         if (update.action === 'start') {
-            // Weiterleitung für Spieler B basierend auf dem gewählten Spielmodus
             switch (update.modeId) {
                 case GameModeId.DUELL_ROYALE:
                     this.router.navigate(['/game1'], { queryParams: { code: this.lobbyCode } });
@@ -145,12 +121,8 @@ export class LobbyComponent implements OnInit {
                     console.error('Unbekannter Spielmodus:', update.modeId);
             }
         } else if (update.action === 'request_settings') {
-            console.log('Received request_settings. Role:', this.user.role);
     
             if (this.user.role === 'A') {
-                console.log('Player A is sending current settings...');
-    
-                // Spieler A sendet die aktuellen Einstellungen
                 this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
                     action: 'update_settings',
                     modeId: this.selectedMode.id,
@@ -159,24 +131,18 @@ export class LobbyComponent implements OnInit {
                 });
             }
         } else if (update.action === 'update_settings') {
-            console.log('Settings update received:', update);
-    
-            // Verarbeite das Update für den Spielmodus
+
             if (update.modeId !== undefined) {
                 this.selectedMode = this.gameModes.find(mode => mode.id === update.modeId)!;
             }
-    
-            // Verarbeite das Update für die Schwierigkeit
+
             if (update.difficultyValue !== undefined) {
                 this.selectedDifficulty = DifficultyHelper.fromNumber(update.difficultyValue);
             }
-    
-            // Verarbeite das Update für die Rundenanzahl
+
             if (update.selectedRounds !== undefined) {
                 this.selectedRounds = update.selectedRounds;
             }
-    
-            console.log('Settings updated:', this.selectedMode, this.selectedDifficulty, this.selectedRounds);
         }
     }    
         
@@ -211,14 +177,12 @@ export class LobbyComponent implements OnInit {
     
     
     copyLobbyCode(): void {
-        // Copy lobby code into buffer
         navigator.clipboard.writeText(this.lobbyCode).then(() => {
             this.snackBar.open('Lobby-Code kopiert: ' + this.lobbyCode, 'Schließen', { duration: 3000 });
         });
     }
 
     copyInviteLink(): void {
-        // Copy URL with lobby code for invitation
         const inviteLink = `${window.location.origin}/?code=${this.lobbyCode}`;
         navigator.clipboard.writeText(inviteLink).then(() => {
             this.snackBar.open('Einladungslink kopiert: ' + inviteLink, 'Schließen', { duration: 3000 });
@@ -228,7 +192,6 @@ export class LobbyComponent implements OnInit {
     startGame(): void {
         this.updateDifficulty(DifficultyHelper.toNumber(this.selectedDifficulty));
         this.updateRounds();
-        // WebSocket-Nachricht senden
         this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
             action: 'start',
             modeId: this.selectedMode.id,
@@ -236,7 +199,6 @@ export class LobbyComponent implements OnInit {
             selectedRounds: this.selectedRounds
         });
 
-        // Weiterleitung für Spieler A
         switch (this.selectedMode.id) {
             case GameModeId.DUELL_ROYALE:
                 this.router.navigate(['/game1'], { queryParams: { code: this.lobbyCode } });
@@ -250,13 +212,12 @@ export class LobbyComponent implements OnInit {
         }
     }
 
+    /**
+     * Leaves the lobby and navigates to the home page.
+     */
     leaveLobby(): void {
-        // API call removes player from current lobby, deletes lobby if no players after
         this.lobbyService.leaveLobby(this.lobbyCode, this.username).subscribe({
             next: (response: string) => {
-                console.log(response);
-
-                // Navigates back to Home Component
                 this.router.navigate(['/']);
                 this.snackBar.open(response, 'Schließen', { duration: 3000 });
             },

@@ -1,18 +1,18 @@
 html, body {
     height: 100%;
     margin: 0;
-    overflow: hidden; /* Verhindert das Scrollen */
+    overflow: hidden;
     font-family: 'Open Sans', sans-serif;
   }
   
   .outer-container {
-    height: 100vh; /* Höhe des Containers */
-    margin: 0; /* Kein Margin */
+    height: 100vh;
+    margin: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; /* Zentriert den Inhalt vertikal und horizontal */
-    background-color: rgba(255, 255, 255, 0); /* Vollständig transparenter Hintergrund */
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0);
   }
   
   .header {
@@ -23,12 +23,12 @@ html, body {
   .home-title {
     font-size: 3rem;
     font-weight: bold;
-    color: #333333; /* Dunklere Farbe für besseren Kontrast */
+    color: #333333;
   }
   
   .home-description {
     font-size: 1.2rem;
-    color: #666666; /* Mitteldunkle Farbe für besseren Kontrast */
+    color: #666666;
     margin-bottom: 40px;
     text-align: center;
   }
@@ -64,7 +64,7 @@ html, body {
   .form-group label {
     display: block;
     font-weight: bold;
-    color: #333333; /* Dunklere Farbe für besseren Kontrast */
+    color: #333333;
     margin-bottom: 5px;
   }
   
@@ -72,17 +72,17 @@ html, body {
     width: 100%;
     padding: 10px;
     font-size: 1rem;
-    border: 1px solid #333333; /* Dunklere Randfarbe */
+    border: 1px solid #333333;
     border-radius: 5px;
-    background-color: #f0f0f0; /* Hellere Hintergrundfarbe */
-    color: #333333; /* Dunklere Schriftfarbe */
+    background-color: #f0f0f0;
+    color: #333333;
   }
   
   .button-group {
     width: 100%;
     display: flex;
     justify-content: space-between;
-    gap: 10px; /* Abstand zwischen den Buttons */
+    gap: 10px;
   }
   
   .button-group button {
@@ -90,8 +90,8 @@ html, body {
     padding: 10px;
     font-size: 1.2rem;
     font-weight: bold;
-    color: #ffffff; /* Weiße Schriftfarbe */
-    background-color: #4caf50; /* Grün für den Button */
+    color: #ffffff;
+    background-color: #4caf50;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -101,10 +101,9 @@ html, body {
   }
   
   .button-group button:hover {
-    background-color: #45a049; /* Dunkleres Grün beim Hover */
+    background-color: #45a049;
   }
 
-/* ... vorhandene CSS-Regeln ... */
 
 .error {
     color: red;
@@ -118,13 +117,13 @@ html, body {
   }
   
   .disabled-button {
-    background-color: #d3d3d3 !important; /* Wichtig, um die Hintergrundfarbe zu überschreiben */
-    color: #888888 !important; /* Wichtig, um die Textfarbe zu überschreiben */
-    cursor: not-allowed !important; /* Wichtig, um den Cursor zu überschreiben */
+    background-color: #d3d3d3 !important;
+    color: #888888 !important;
+    cursor: not-allowed !important;
   }
   
   button[disabled] {
-    background-color: #d3d3d3 !important; /* Wichtig, um die Hintergrundfarbe zu überschreiben */
-    color: #888888 !important; /* Wichtig, um die Textfarbe zu überschreiben */
-    cursor: not-allowed !important; /* Wichtig, um den Cursor zu überschreiben */
+    background-color: #d3d3d3 !important;
+    color: #888888 !important;
+    cursor: not-allowed !important;
   }

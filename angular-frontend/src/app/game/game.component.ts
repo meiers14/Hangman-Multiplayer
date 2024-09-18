@@ -285,12 +285,10 @@ export class GameComponent implements OnInit {
             rounds: this.rounds,
             lobbyCode: this.lobbyCode
         };
-        console.log('Sending game update:', gameState);
         this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, gameState);
     }
 
     updateGameState(gameState: any) {
-        console.log('Received game state update:', gameState);
         if (gameState) {
             this.word = gameState.word ?? this.word;
             this.displayWord = gameState.displayWord ?? this.displayWord;
