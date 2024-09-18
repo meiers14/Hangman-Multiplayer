@@ -11,7 +11,7 @@ export class WebsocketService {
 
   constructor() {
     this.client = new Client({
-      brokerURL: 'ws://localhost:8080/game',
+      brokerURL: 'ws://localhost/game',
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
@@ -48,7 +48,7 @@ export class WebsocketService {
   subscribeToChat(lobbyCode: string, callback: (message: any) => void): StompSubscription {
     const destination = `/topic/chat/${lobbyCode}`;
     return this.client.subscribe(destination, message => {
-      console.log('Received message:', message.body);  // Debugging-Ausgabe
+      console.log('Received message:', message.body);
       callback(JSON.parse(message.body));
     });
   }

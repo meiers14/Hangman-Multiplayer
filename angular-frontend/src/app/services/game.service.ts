@@ -10,7 +10,7 @@ import { Difficulty } from '../models/difficulty.enum';
   providedIn: 'root'
 })
 export class GameService {
-  private apiUrl = 'http://localhost:8080';
+  private apiUrl = 'http://localhost/api';
 
   constructor(private http: HttpClient) { }
 

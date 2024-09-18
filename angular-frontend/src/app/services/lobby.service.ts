@@ -8,7 +8,7 @@ import { Difficulty } from '../models/difficulty.enum';
   providedIn: 'root'
 })
 export class LobbyService {
-  private apiUrl = 'http://localhost:8080';
+  private apiUrl = 'http://localhost/api';
 
   constructor(private http: HttpClient) {}
 
@@ -17,9 +17,6 @@ export class LobbyService {
   }
 
   joinLobby(lobby: Lobby): Observable<string> {
-    // const params = new HttpParams()
-    //   .set('lobbyCode', lobbyCode)
-    //   .set('playerB', playerB);
     return this.http.put<string>(`${this.apiUrl}/joinLobby`, lobby, { responseType: 'text' as 'json' });
   }
   
