@@ -7,6 +7,11 @@ import { GameComponent } from '../game.component';
   styleUrls: ['../game.component.css']
 })
 export class DuelRoyaleComponent extends GameComponent {
+  /**
+   * Overrides the guessLetter method to include role-based round tracking
+   * for a duel-style hangman game.
+   * @param letter The guessed letter by the current player.
+   */
   override guessLetter(letter: string) {
     if (!this.isCurrentPlayer || this.gameOver || this.gameWon) return;
 
@@ -33,7 +38,9 @@ export class DuelRoyaleComponent extends GameComponent {
     }
   }
 
-
+  /**
+   * Overrides the checkWin method to record the round's winner based on the player's role.
+   */
   override checkWin() {
     if (this.displayWord.join('') === this.word) {
       this.gameWon = true;
