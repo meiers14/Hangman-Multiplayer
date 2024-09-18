@@ -27,13 +27,6 @@ export class LobbyService {
     return this.http.get<Lobby>(`${this.apiUrl}/findLobbyByLobbyCode`, { params });
   }
 
-  updateDifficulty(lobbyCode: string, selectedDifficulty: Difficulty): Observable<string> {
-    const params = new HttpParams()
-      .set('lobbyCode', lobbyCode)
-      .set('lobbyDifficulty', selectedDifficulty.toString());
-    return this.http.put<string>(`${this.apiUrl}/updateDifficulty`, {}, { params, responseType: 'text' as 'json' });
-  }
-
   leaveLobby(lobbyCode: string, username: string): Observable<string> {
     const params = new HttpParams()
       .set('lobbyCode', lobbyCode)

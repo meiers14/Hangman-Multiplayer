@@ -107,17 +107,17 @@ services:
       - hangman_network
     restart: always
 
-  monitor:
-    container_name: hangman-container-monitor
-    build:
-      context: ./monitor
-      dockerfile: Dockerfile
-    volumes:
-      - ./monitor:/app
-      - /var/run/docker.sock:/var/run/docker.sock
-    depends_on:
-      - nginx
-    restart: always
+  # monitor:
+  #   container_name: hangman-container-monitor
+  #   build:
+  #     context: ./monitor
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./monitor:/app
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   depends_on:
+  #     - nginx
+  #   restart: always
 
 volumes:
   mysql_data:
