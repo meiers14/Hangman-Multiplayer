@@ -3,12 +3,13 @@ import { Injectable } from '@angular/core';
 import { Lobby } from '../models/lobby';
 import { Observable } from 'rxjs';
 import { Difficulty } from '../models/difficulty.enum';
+import { environment } from '../../../environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LobbyService {
-  private apiUrl = 'http://localhost/api';
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 

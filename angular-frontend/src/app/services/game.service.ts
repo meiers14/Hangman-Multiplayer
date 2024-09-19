@@ -3,12 +3,13 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Word } from '../models/word';
 import { Difficulty } from '../models/difficulty.enum';
+import { environment } from '../../../environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameService {
-  private apiUrl = 'http://localhost/api';
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
 

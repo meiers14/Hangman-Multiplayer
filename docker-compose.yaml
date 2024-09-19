@@ -85,7 +85,7 @@ services:
     networks:
       - hangman_network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"] # Change here if not localhost
       interval: 30s
       timeout: 10s
       retries: 5
