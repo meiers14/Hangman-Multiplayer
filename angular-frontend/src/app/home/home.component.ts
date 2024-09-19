@@ -17,7 +17,6 @@ import { LobbyService } from '../services/lobby.service';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
-  // Shared Data
   lobbyCode: string = '';
   username: string = '';
 
@@ -30,7 +29,6 @@ export class HomeComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // Checks if URL contains a lobby code as parameter
     this.route.queryParams.subscribe(params => {
       const code = params['code'];
       if (code) {
@@ -40,7 +38,6 @@ export class HomeComponent implements OnInit {
   }
 
   createLobby(): void {
-    // Create new lobby object
     const lobby: Lobby = {
       playerA: {
         name: this.username,
@@ -49,20 +46,15 @@ export class HomeComponent implements OnInit {
       lobbyDifficulty: Difficulty.MITTEL
     };
 
-    // API call returns lobby object created by player A
     this.lobbyService.createLobby(lobby).subscribe({
       next: (lobby: Lobby) => {
-        console.log(lobby);
 
         if (lobby.lobbyCode) {
-          // Set lobby code
           this.lobbyCode = lobby.lobbyCode;
 
-          // Add player and lobby information to shared data
           this.sharedDataService.set('lobbyCode', this.lobbyCode);
           this.sharedDataService.set('username', this.username);
-          
-          // Navigate to Lobby Component
+
           this.router.navigate(['/lobby'], { queryParams: { code: this.lobbyCode} });
           this.snackBar.open('Neue Lobby erfolgreich erstellt', 'Schließen', { duration: 3000 });
         }
@@ -79,7 +71,6 @@ export class HomeComponent implements OnInit {
   }
 
   joinLobby(): void {
-    // Create lobby object
     const lobby: Lobby = {
       lobbyCode: this.lobbyCode,
       playerB: {
@@ -88,14 +79,11 @@ export class HomeComponent implements OnInit {
       }
     };
 
-    // API call add player B to lobby
     this.lobbyService.joinLobby(lobby).subscribe({
       next: (response: string) => {
-        // Add player and lobby information to shared data
         this.sharedDataService.set('lobbyCode', this.lobbyCode);
         this.sharedDataService.set('username', this.username);
 
-        // Navigate to Lobby Component
         this.router.navigate(['/lobby'], { queryParams: { code: this.lobbyCode} });
         this.snackBar.open(response, 'Schließen', { duration: 3000 });
       },

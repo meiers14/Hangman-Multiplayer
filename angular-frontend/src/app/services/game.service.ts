@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
-// Models
 import { Word } from '../models/word';
 import { Difficulty } from '../models/difficulty.enum';
 

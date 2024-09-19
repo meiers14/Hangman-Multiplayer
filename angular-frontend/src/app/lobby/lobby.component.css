@@ -85,7 +85,6 @@
     align-items: center;
     justify-content: center;
     height: 40px;
-    /* Einheitliche Höhe */
 }
 
 .copy-btn:hover {
@@ -140,9 +139,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    /* Vertikale Zentrierung */
     align-items: center;
-    /* Horizontale Zentrierung */
     text-align: center;
     padding: 10px;
     box-sizing: border-box;
@@ -151,11 +148,8 @@
 .card-img-top {
     width: auto;
     height: auto;
-    /* Proportional skalieren */
     max-height: 150px;
-    /* Maximale Höhe festlegen */
     object-fit: contain;
-    /* Bild proportional skalieren und anpassen */
 }
 
 .card-body {
@@ -220,7 +214,6 @@
 
 button {
     height: 40px;
-    /* Einheitliche Höhe für alle Buttons */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -272,24 +265,24 @@ button:disabled {
 }
 
 .invite-btn {
-    background-color: #007bff; /* Blaue Hintergrundfarbe */
-    border: 1px solid #007bff; /* Blaue Randfarbe */
-    color: #ffffff; /* Weiße Schriftfarbe (falls Text verwendet wird) */
-    padding: 10px; /* Padding hinzufügen, damit der Button die gleiche Größe wie die anderen Buttons hat */
-    border-radius: 5px; /* Gleiche Abrundung wie bei anderen Buttons */
+    background-color: #007bff;
+    border: 1px solid #007bff;
+    color: #ffffff;
+    padding: 10px;
+    border-radius: 5px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 40px; /* Gleiche Höhe wie die anderen Buttons */
+    height: 40px;
   }
   
   .invite-btn i {
-    font-size: 1.5em; /* Größe des Icons */
-    color: #ffffff; /* Weißes Icon */
+    font-size: 1.5em;
+    color: #ffffff;
   }
   
   .invite-btn:hover {
-    background-color: #0056b3; /* Dunklere blaue Farbe beim Hover */
-    border-color: #0056b3; /* Dunklere blaue Randfarbe beim Hover */
+    background-color: #0056b3;
+    border-color: #0056b3;
   }

@@ -2,13 +2,9 @@ import {Component, HostListener, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {SharedDataService} from '../services/shared-data.service';
-
-// Models
 import {Lobby} from '../models/lobby';
 import {Difficulty} from '../models/difficulty.enum';
 import {Player} from '../models/player';
-
-// Services
 import {LobbyService} from '../services/lobby.service';
 import {GameService} from '../services/game.service';
 import {WebsocketService} from '../services/websocket.service';
@@ -19,7 +15,7 @@ import {WebsocketService} from '../services/websocket.service';
     styleUrls: ['./game.component.css']
 })
 export class GameComponent implements OnInit {
-    // From Shared Data
+
     lobbyCode: string = '';
     username: string = '';
     selectedDifficulty: Difficulty = Difficulty.MITTEL;
@@ -52,8 +48,6 @@ export class GameComponent implements OnInit {
 
     wins: number = 0;
 
-
-    // Chat
     chatMessages: { sender: string, message: string, timestamp: string }[] = [];
     newMessage: string = '';
 
@@ -67,6 +61,10 @@ export class GameComponent implements OnInit {
     ) {
     }
 
+    /**
+     * Lifecycle hook that is called after the component has initialized.
+     * Sets up WebSocket connections and retrieves initial game settings.
+     */
     async ngOnInit() {
         this.lobbyCode = this.sharedDataService.get('lobbyCode') ?? '';
         this.username = this.sharedDataService.get('username') ?? '';
@@ -102,6 +100,9 @@ export class GameComponent implements OnInit {
         await this.initializeGame();
     }
 
+    /**
+     * Initializes the game, retrieves lobby and word data, and sets up game rounds.
+     */
     protected async initializeGame() {
         try {
             this.getLobby();
@@ -115,22 +116,21 @@ export class GameComponent implements OnInit {
         }
     }
 
+    /**
+     * Fetches lobby details from the server based on the lobby code.
+     */
     getLobby(): void {
-        // API call returns Lobby object
         this.lobbyService.getLobbyByCode(this.lobbyCode).subscribe({
             next: (lobby: Lobby) => {
                 if (!lobby || lobby === null) {
-                    // Navigate to Home Component if no lobby object was found
                     this.router.navigate(['/']);
                     throw new Error('Lobby ist null oder nicht gefunden');
                 }
-                // Set local variables
                 this.lobby = lobby;
                 if (lobby.playerA != null && lobby.playerB != null) {
                     this.players = [lobby.playerA, lobby.playerB];
                 }
 
-                // Set local user
                 if (this.username === this.players[0].name) {
                     this.user = this.players[0];
                     this.isCurrentPlayer = true;
@@ -146,6 +146,9 @@ export class GameComponent implements OnInit {
         });
     }
 
+    /**
+     * Fetches words from the server based on the selected difficulty level.
+     */
     getWords(): void {
         if (this.selectedDifficulty) {
             this.gameService.getWordsByDifficulty(this.selectedDifficulty).subscribe({
@@ -167,6 +170,10 @@ export class GameComponent implements OnInit {
     }
 
 
+    /**
+     * Handles keyboard input to guess a letter if it's the current player's turn.
+     * @param event The keyboard event triggered by pressing a key.
+     */
     @HostListener('window:keydown', ['$event'])
     handleKeyboardEvent(event: KeyboardEvent) {
         if ((<HTMLElement>event.target).tagName === 'INPUT') {
@@ -183,6 +190,10 @@ export class GameComponent implements OnInit {
         }
     }
 
+    /**
+     * Handles pressing the Enter key to send chat messages or start a new round.
+     * @param event The keyboard event triggered by pressing Enter.
+     */
     @HostListener('window:keydown.enter', ['$event'])
     handleEnterKey(event: KeyboardEvent) {
         if ((<HTMLElement>event.target).tagName === 'INPUT') {
@@ -192,12 +203,16 @@ export class GameComponent implements OnInit {
         }
     }
 
+    /**
+     * Processes a guessed letter and checks if it's in the word.
+     * Updates the game state based on the correctness of the guess.
+     * @param letter The guessed letter.
+     */
     guessLetter(letter: string) {
         if (!this.isCurrentPlayer || this.gameOver || this.gameWon) return;
 
         this.guessedLetters.push(letter);
         if (this.word.includes(letter)) {
-            // Display guessed letter if it is correct
             for (let i = 0; i < this.word.length; i++) {
                 if (this.word[i] === letter) {
                     this.displayWord[i] = letter;
@@ -208,7 +223,6 @@ export class GameComponent implements OnInit {
             this.checkWin();
         } else {
             this.remainingLives--;
-            // Game is over if no lives remain befor finish guessing the word
             if (this.remainingLives <= 0) {
                 this.remainingLives = 0;
                 this.rounds[this.currentRound - 1] = 'L';
@@ -220,7 +234,9 @@ export class GameComponent implements OnInit {
         }
     }
 
-
+    /**
+     * Checks if the player has guessed all the letters in the word, indicating a win.
+     */
     checkWin() {
         if (this.displayWord.join('') === this.word) {
             this.gameWon = true;
@@ -231,11 +247,17 @@ export class GameComponent implements OnInit {
         }
     }
 
+    /**
+     * Updates the hangman image based on the remaining lives of the player.
+     */
     updateHangmanImage() {
         const lifeStage = 6 - this.remainingLives;
         this.hangmanImage = `assets/hangman${lifeStage}.png`;
     }
 
+    /**
+     * Starts a new round of the game by resetting the state and selecting a new word.
+     */
     startNewRound() {
         if (this.currentRound >= this.selectedRounds) {
             return;
@@ -255,6 +277,9 @@ export class GameComponent implements OnInit {
         this.sendGameUpdate();
     }
 
+    /**
+     * Sends a chat message typed by the player to the WebSocket server.
+     */
     sendMessage() {
         if (this.newMessage.trim()) {
             const chatMessage = {
@@ -267,6 +292,9 @@ export class GameComponent implements OnInit {
         }
     }
 
+    /**
+     * Leaves the current game and navigates back to the lobby.
+     */
     returnToLobby() {
         this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
             action: 'return_to_lobby'
@@ -275,6 +303,9 @@ export class GameComponent implements OnInit {
         this.router.navigate(['/lobby'], { queryParams: { code: this.lobbyCode } });
     }
 
+    /**
+     * Sends the current game state to the WebSocket server to update other players.
+     */
     sendGameUpdate() {
         const gameState = {
             word: this.word,
@@ -289,12 +320,14 @@ export class GameComponent implements OnInit {
             rounds: this.rounds,
             lobbyCode: this.lobbyCode
         };
-        console.log('Sending game update:', gameState);
         this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, gameState);
     }
 
+    /**
+     * Updates the game state locally based on the game state received from the server.
+     * @param gameState The current game state from the server.
+     */
     updateGameState(gameState: any) {
-        console.log('Received game state update:', gameState);
         if (gameState) {
             this.word = gameState.word ?? this.word;
             this.displayWord = gameState.displayWord ?? this.displayWord;
@@ -311,6 +344,9 @@ export class GameComponent implements OnInit {
         }
     }
 
+    /**
+     * Switches the active player to the other player in the lobby.
+     */
     switchPlayer() {
         this.currentPlayer = this.players.find(player => player.name !== this.currentPlayer.name) || this.currentPlayer;
         this.isCurrentPlayer = (this.username === this.currentPlayer.name);

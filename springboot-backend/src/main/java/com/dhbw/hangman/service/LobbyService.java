@@ -22,6 +22,12 @@ public class LobbyService {
         return lobbyRepository.findAll();
     }
 
+    /**
+     * Generates a unique lobby code of predefined length using random characters.
+     * Ensures the generated code does not already exist in the lobby repository.
+     *
+     * @return A unique lobby code.
+     */
     public String generateLobbyCode() {
         StringBuilder code = new StringBuilder(CODE_LENGTH);
         do {

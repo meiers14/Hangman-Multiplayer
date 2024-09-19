@@ -15,6 +15,11 @@ public class ChatController {
         this.messagingTemplate = messagingTemplate;
     }
 
+    /**
+     * Handles incoming chat messages and sends them to the appropriate chat topic.
+     *
+     * @param message The {@link ChatMessage} payload containing the message details.
+     */
     @MessageMapping("/send")
     public void sendMessage(@Payload ChatMessage message) {
         System.out.println("Sending message: " + message.getUsername() + " - " + message.getMessage());

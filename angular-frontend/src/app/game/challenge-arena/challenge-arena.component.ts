@@ -27,6 +27,9 @@ export class ChallengeArenaComponent extends GameComponent {
     opponentFinished: boolean = false;
     override user!: Player;
 
+    /**
+     * Initializes the component by retrieving necessary game data and setting up WebSocket subscriptions.
+     */
     override async  ngOnInit() {
         this.lobbyCode = this.sharedDataService.get('lobbyCode') ?? '';
         this.username = this.sharedDataService.get('username') ?? '';
@@ -62,6 +65,9 @@ export class ChallengeArenaComponent extends GameComponent {
         await this.initializeGame();
     }
 
+    /**
+     * Initializes the game by retrieving lobby details, setting up rounds, and getting words.
+     */
     override async initializeGame() {
         try {
             this.getLobby();
@@ -76,22 +82,21 @@ export class ChallengeArenaComponent extends GameComponent {
         }
     }
 
+    /**
+     * Retrieves the lobby details using the lobby code and sets up the players.
+     */
     override getLobby(): void {
-        // API call returns Lobby object
         this.lobbyService.getLobbyByCode(this.lobbyCode).subscribe({
             next: (lobby: Lobby) => {
                 if (!lobby || lobby === null) {
-                    // Navigate to Home Component if no lobby object was found
                     this.router.navigate(['/']);
                     throw new Error('Lobby ist null oder nicht gefunden');
                 }
-                // Set local variables
                 this.lobby = lobby;
                 if (lobby.playerA != null && lobby.playerB != null) {
                     this.players = [lobby.playerA, lobby.playerB];
                 }
 
-                // Set local user
                 if (this.username === this.players[0].name) {
                     this.user = this.players[0];
                     this.opponent = this.players[1];
@@ -108,6 +113,10 @@ export class ChallengeArenaComponent extends GameComponent {
             }
         });
     }
+
+    /**
+     * Starts a new round by selecting words for both players and resetting the game state.
+     */
     override startNewRound() {
         if (this.currentRound >= this.selectedRounds) {
             return;
@@ -140,6 +149,9 @@ export class ChallengeArenaComponent extends GameComponent {
         this.sendGameUpdate()
     }
 
+    /**
+     * Retrieves words from the API based on the selected difficulty level.
+     */
     override getWords(): void {
         if (this.selectedDifficulty) {
             this.gameService.getWordsByDifficulty(this.selectedDifficulty).subscribe({
@@ -161,11 +173,22 @@ export class ChallengeArenaComponent extends GameComponent {
         }
     }
 
+    /**
+     * Randomly selects a given number of words from the provided word list.
+     *
+     * @param words List of words to select from.
+     * @param count Number of words to select.
+     * @returns Array of selected words.
+     */
     private getRandomWords(words: string[], count: number): string[] {
         const shuffled = words.sort(() => 0.5 - Math.random());
         return shuffled.slice(0, count);
     }
 
+
+    /**
+     * Sends the opponent's word options to the WebSocket.
+     */
     private sendOpponentWordOptions() {
         const opponentWords = {
             type: 'WORD_OPTIONS',
@@ -175,6 +198,11 @@ export class ChallengeArenaComponent extends GameComponent {
         this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, opponentWords);
     }
 
+    /**
+     * Selects a word for the opponent and sends the selection to the WebSocket.
+     *
+     * @param word The selected word.
+     */
     selectWord(word: string) {
         if (this.isCurrentPlayer) {
             this.wordForOpponent = word;
@@ -184,6 +212,9 @@ export class ChallengeArenaComponent extends GameComponent {
         }
     }
 
+    /**
+     * Sends the word selected by the player to the WebSocket.
+     */
     private sendWordSelection() {
         const wordSelection = {
             type: 'WORD_SELECTION',
@@ -193,16 +224,25 @@ export class ChallengeArenaComponent extends GameComponent {
         this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, wordSelection);
     }
 
+    /**
+     * Checks if both players have selected their words. If so, hides the word selection.
+     */
     private checkIfBothSelected() {
         if (this.wordSelectedBySelf && this.wordSelectedByOpponent) {
             this.showWordSelection = false;
         }
     }
 
+    /**
+     * Switches the current player (no action in this case).
+     */
     override switchPlayer() {
         return;
     }
 
+    /**
+     * Sends the initial round setup to the WebSocket.
+     */
     protected sendInitialRounds() {
         const gameState = {
             type: 'INITIAL_ROUNDS',
@@ -211,10 +251,12 @@ export class ChallengeArenaComponent extends GameComponent {
             selectedRounds: this.selectedRounds,
             lobbyCode: this.lobbyCode
         };
-        console.log('Sending INITIAL_ROUNDS:', gameState);
         this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, gameState);
     }
 
+    /**
+     * Sends the current game state to the WebSocket, including round, life, and game status.
+     */
     override sendGameUpdate() {
         const gameState = {
             currentRound: this.currentRound,
@@ -228,13 +270,16 @@ export class ChallengeArenaComponent extends GameComponent {
             opponentFinished: this.opponentFinished,
             type: 'GAME_STATE'
         };
-        console.log('Sending game update:', gameState);
         this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, gameState);
     }
 
+    /**
+     * Updates the game state based on data received from the WebSocket.
+     *
+     * @param gameState The new game state received.
+     */
     override updateGameState(gameState: any) {
         if (gameState) {
-            console.log('Username:', this.username);
             if (gameState.selectedBy !== this.username) {
                 switch (gameState.type) {
                     case 'WORD_SELECTION':
@@ -262,29 +307,32 @@ export class ChallengeArenaComponent extends GameComponent {
                         this.roundsOpponent = gameState.rounds ?? this.roundsOpponent;
                         this.currentRound = gameState.currentRound ?? this.currentRound;
 
-                        // Check if opponent finished their round
                         if (gameState.gameOver || gameState.gameWon) {
                             this.opponentFinished = true;
                         }
                         if (gameState.showWordSelection) {
-                            this.wordSelectedBySelf = false;
-                            this.wordSelectedByOpponent = false;
-                            this.showWordSelection = true;
-                            this.opponentFinished = false;
-                            this.guessedLetters = [];
-                            this.remainingLives = 6;
-                            this.hangmanImage = 'assets/hangman0.png';
-                            this.remainingLivesOpponent = 6;
-                            this.hangmanImageOpponent = 'assets/hangman0.png';
-                            this.gameOver = false;
-                            this.gameWon = false;
+                            this.resetWordSelectionState();
                         }
                         break;
-
-                    default:
-                        console.error("Unbekannter Nachrichtentyp:", gameState.type);
                 }
             }
         }
+    }
+
+    /**
+     * Resets the word selection state and relevant game variables.
+     */
+    private resetWordSelectionState() {
+        this.wordSelectedBySelf = false;
+        this.wordSelectedByOpponent = false;
+        this.showWordSelection = true;
+        this.opponentFinished = false;
+        this.guessedLetters = [];
+        this.remainingLives = 6;
+        this.hangmanImage = 'assets/hangman0.png';
+        this.remainingLivesOpponent = 6;
+        this.hangmanImageOpponent = 'assets/hangman0.png';
+        this.gameOver = false;
+        this.gameWon = false;
     }
 }
