@@ -58,9 +58,13 @@ export class WebsocketService {
   }
 
   sendMessage(destination: string, body: any) {
-    this.client.publish({
-      destination: destination,
-      body: JSON.stringify(body)
-    });
+    if (this.client.active) {
+      this.client.publish({
+        destination: destination,
+        body: JSON.stringify(body)
+      });
+    } else {
+      console.error("Cannot send message: STOMP client is not connected.");
+    }
   }
 }
