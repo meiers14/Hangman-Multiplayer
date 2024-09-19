@@ -25,10 +25,6 @@ public class Lobby {
     })
 	private Player playerB;
 
-	@Enumerated(EnumType.STRING)
-	private Difficulty lobbyDifficulty;
-
-
 	public int getId() {
 		return Id;
 	}
@@ -61,21 +57,12 @@ public class Lobby {
 		this.playerB = playerB;
 	}
 
-	public Difficulty getLobbyDifficulty() {
-		return lobbyDifficulty;
-	}
-
-	public void setLobbyDifficulty(Difficulty lobbyDifficulty) {
-		this.lobbyDifficulty = lobbyDifficulty;
-	}
-
 	public Lobby(int id, String lobbyCode, Player playerA, Player playerB, Difficulty lobbyDifficulty) {
 		super();
 		Id = id;
 		this.lobbyCode = lobbyCode;
 		this.playerA = playerA;
 		this.playerB = playerB;
-		this.lobbyDifficulty = lobbyDifficulty;
 	}
 
 	public Lobby() {

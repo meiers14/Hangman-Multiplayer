@@ -1,11 +1,11 @@
-FROM node:alpine
-
+# Stage 1: Build Stage
+FROM node:alpine AS frontend-build
 WORKDIR /usr/src/app
-
-COPY . /usr/src/app
-
-RUN npm install -g @angular/cli
-
+COPY . .
 RUN npm install
+RUN npm run build --prod
 
-CMD ["ng", "serve", "--host", "0.0.0.0"]
+# Stage 2: Final Stage 
+FROM nginx:alpine
+COPY --from=frontend-build /usr/src/app/dist/angular-frontend/browser /usr/share/nginx/html
+EXPOSE 80

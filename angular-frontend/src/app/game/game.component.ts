@@ -21,13 +21,13 @@ export class GameComponent implements OnInit {
     selectedDifficulty: Difficulty = Difficulty.MITTEL;
     selectedRounds: number = 0;
 
-
+    // From Database
     lobby!: Lobby;
     players: Player[] = [];
     user!: Player;
     words: string[] = [];
 
-
+    // Game
     alphabet: string[] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
     guessedLetters: string[] = [];
 
@@ -137,7 +137,7 @@ export class GameComponent implements OnInit {
                     this.currentPlayer = this.user
                 } else {
                      this.user = this.players[1];
-                 }
+                }
             },
             error: (error) => {
                 console.error('Fehler:', error);
@@ -295,8 +295,12 @@ export class GameComponent implements OnInit {
     /**
      * Leaves the current game and navigates back to the lobby.
      */
-    leaveGame() {
-        this.router.navigate(['/lobby'], {queryParams: {code: this.lobbyCode}});
+    returnToLobby() {
+        this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
+            action: 'return_to_lobby'
+        });
+
+        this.router.navigate(['/lobby'], { queryParams: { code: this.lobbyCode } });
     }
 
     /**
@@ -346,16 +350,5 @@ export class GameComponent implements OnInit {
     switchPlayer() {
         this.currentPlayer = this.players.find(player => player.name !== this.currentPlayer.name) || this.currentPlayer;
         this.isCurrentPlayer = (this.username === this.currentPlayer.name);
-    }
-
-    /**
-     * Sends a message to return to the lobby and navigates the player back to the lobby screen.
-     */
-    returnToLobby() {
-        this.websocketService.sendMessage(`/app/game/${this.lobbyCode}`, {
-            action: 'return_to_lobby'
-        });
-
-        this.router.navigate(['/lobby'], { queryParams: { code: this.lobbyCode } });
     }
 }

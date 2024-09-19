@@ -25,7 +25,8 @@ export class DuelRoyaleComponent extends GameComponent {
       this.updateHangmanImage();
       this.sendGameUpdate();
       this.checkWin();
-    } else {
+    } 
+    else {
       this.remainingLives--;
       if (this.remainingLives <= 0) {
         this.remainingLives = 0;
@@ -37,6 +38,7 @@ export class DuelRoyaleComponent extends GameComponent {
       this.sendGameUpdate();
     }
   }
+
 
   /**
    * Overrides the checkWin method to record the round's winner based on the player's role.
