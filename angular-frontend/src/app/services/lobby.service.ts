@@ -8,7 +8,7 @@ import { Difficulty } from '../models/difficulty.enum';
   providedIn: 'root'
 })
 export class LobbyService {
-  private apiUrl = 'http://localhost:8080';
+  private apiUrl = 'http://localhost/api';
 
   constructor(private http: HttpClient) {}
 
@@ -17,9 +17,6 @@ export class LobbyService {
   }
 
   joinLobby(lobby: Lobby): Observable<string> {
-    // const params = new HttpParams()
-    //   .set('lobbyCode', lobbyCode)
-    //   .set('playerB', playerB);
     return this.http.put<string>(`${this.apiUrl}/joinLobby`, lobby, { responseType: 'text' as 'json' });
   }
   
@@ -28,13 +25,6 @@ export class LobbyService {
     const params = new HttpParams()
       .set('lobbyCode', lobbyCode)
     return this.http.get<Lobby>(`${this.apiUrl}/findLobbyByLobbyCode`, { params });
-  }
-
-  updateDifficulty(lobbyCode: string, selectedDifficulty: Difficulty): Observable<string> {
-    const params = new HttpParams()
-      .set('lobbyCode', lobbyCode)
-      .set('lobbyDifficulty', selectedDifficulty.toString());
-    return this.http.put<string>(`${this.apiUrl}/updateDifficulty`, {}, { params, responseType: 'text' as 'json' });
   }
 
   leaveLobby(lobbyCode: string, username: string): Observable<string> {

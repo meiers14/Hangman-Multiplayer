@@ -21,7 +21,8 @@ export class DuelRoyaleComponent extends GameComponent {
       this.updateHangmanImage();
       this.sendGameUpdate();
       this.checkWin();
-    } else {
+    } 
+    else {
       this.remainingLives--;
       // Game is over if no lives remain befor finish guessing the word
       if (this.remainingLives <= 0) {
@@ -34,7 +35,6 @@ export class DuelRoyaleComponent extends GameComponent {
       this.sendGameUpdate();
     }
   }
-
 
   override checkWin() {
     if (this.displayWord.join('') === this.word) {

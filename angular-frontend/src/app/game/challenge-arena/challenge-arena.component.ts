@@ -10,6 +10,9 @@ import { Lobby } from '../../models/lobby';
     styleUrls: ['../game.component.css']
 })
 export class ChallengeArenaComponent extends GameComponent {
+    // From Database
+    opponent!:Player;
+
     showWordSelection: boolean = true;
     wordOptions: string[] = [];
     opponentWordOptions: string[] = [];
@@ -91,11 +94,12 @@ export class ChallengeArenaComponent extends GameComponent {
                 // Set local user
                 if (this.username === this.players[0].name) {
                     this.user = this.players[0];
+                    this.opponent = this.players[1];
                     this.isCurrentPlayer = true;
                     this.currentPlayer = this.user
                 } else {
-                    this.user = this.players[1];
-                    this.currentPlayer = this.user
+                     this.user = this.players[1];
+                     this.opponent = this.players[0];
                 }
             },
             error: (error) => {

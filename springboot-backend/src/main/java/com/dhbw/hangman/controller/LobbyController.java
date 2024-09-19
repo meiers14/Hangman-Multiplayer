@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@RequestMapping("/api")
 public class LobbyController {
 
     @Autowired
@@ -113,22 +114,6 @@ public class LobbyController {
             return new ResponseEntity<>("Lobby erfolgreich verlassen", HttpStatus.OK);
         } catch (DataAccessException e) {
             return new ResponseEntity<>("Fehler beim Aktualisieren der Lobby", HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @PutMapping("/updateDifficulty")
-    public ResponseEntity<String> updateDifficulty(@RequestParam String lobbyCode, @RequestParam Difficulty lobbyDifficulty) {
-        try {
-            Lobby lobby = lobbyRepository.findByLobbyCode(lobbyCode);
-            if (lobby == null) {
-                return new ResponseEntity<>("Fehler: Lobby nicht gefunden", HttpStatus.NOT_FOUND);
-            }
-            lobby.setLobbyDifficulty(lobbyDifficulty);
-            lobbyRepository.save(lobby);
-            messagingTemplate.convertAndSend("/topic/lobby/" + lobbyCode, lobby);
-            return new ResponseEntity<>("Schwierigkeitsgrad erfolgreich aktualisiert", HttpStatus.OK);
-        } catch (DataAccessException e) {
-            return new ResponseEntity<>("Fehler beim Aktualisieren des Schwierigkeitsgrades", HttpStatus.BAD_REQUEST);
         }
     }
 }
