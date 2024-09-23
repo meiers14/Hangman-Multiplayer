@@ -28,6 +28,12 @@ export class WebsocketService {
 
     this.client.onDisconnect = () => {
       this.connected.next(false);
+      setTimeout(() => {
+        if (!this.client.active) {
+          console.log('Attempting to reconnect...');
+          this.client.activate();
+        }
+      }, 5000);
     };
 
     this.client.activate();
