@@ -1,3 +1,10 @@
+x-backend-environment: &backend-environment
+  SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/${HANGMAN_DB}
+  SPRING_DATASOURCE_USERNAME: ${HANGMAN_DB_USER}
+  SPRING_DATASOURCE_PASSWORD: ${HANGMAN_DB_PASSWORD}
+  SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+  SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
 services:
   frontend:
     build:
@@ -11,18 +18,14 @@ services:
     networks:
       - hangman_network
 
-  backend-master:
+  backend-1:
     container_name: hangman-backend-1
     build:
       context: ./springboot-backend
       dockerfile: Dockerfile
     environment:
       INIT_DATABASE: "true"
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/${HANGMAN_DB}
-      SPRING_DATASOURCE_USERNAME: ${HANGMAN_DB_USER}
-      SPRING_DATASOURCE_PASSWORD: ${HANGMAN_DB_PASSWORD}
-      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      <<: *backend-environment
     expose:
       - "8080"
     restart: always
@@ -32,17 +35,13 @@ services:
     networks:
       - hangman_network
 
-  backend-replica1:
+  backend-2:
     container_name: hangman-backend-2
     build:
       context: ./springboot-backend
       dockerfile: Dockerfile
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/${HANGMAN_DB}
-      SPRING_DATASOURCE_USERNAME: ${HANGMAN_DB_USER}
-      SPRING_DATASOURCE_PASSWORD: ${HANGMAN_DB_PASSWORD}
-      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      <<: *backend-environment
     expose:
       - "8080"
     restart: always
@@ -52,17 +51,13 @@ services:
     networks:
       - hangman_network
 
-  backend-replica2:
+  backend-3:
     container_name: hangman-backend-3
     build:
       context: ./springboot-backend
       dockerfile: Dockerfile
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/${HANGMAN_DB}
-      SPRING_DATASOURCE_USERNAME: ${HANGMAN_DB_USER}
-      SPRING_DATASOURCE_PASSWORD: ${HANGMAN_DB_PASSWORD}
-      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      <<: *backend-environment
     expose:
       - "8080"
     restart: always
@@ -85,10 +80,11 @@ services:
     networks:
       - hangman_network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u${HANGMAN_DB_USER} -p${HANGMAN_DB_PASSWORD} || exit 1"]
       interval: 10s
       timeout: 10s
       retries: 5
+      start_period: 30s
     restart: always
 
   nginx:
@@ -100,24 +96,12 @@ services:
       - "80:80" # Change here if not port 80
     depends_on:
       - frontend
-      - backend-master
-      - backend-replica1
-      - backend-replica2
+      - backend-1
+      - backend-2
+      - backend-3
     networks:
       - hangman_network
     restart: always
-
-  # monitor:
-  #   container_name: hangman-container-monitor
-  #   build:
-  #     context: ./monitor
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ./monitor:/app
-  #     - /var/run/docker.sock:/var/run/docker.sock
-  #   depends_on:
-  #     - nginx
-  #   restart: always
 
 volumes:
   mysql_data:
