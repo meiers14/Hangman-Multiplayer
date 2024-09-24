@@ -30,7 +30,11 @@ export class DuelRoyaleComponent extends GameComponent {
       this.remainingLives--;
       if (this.remainingLives <= 0) {
         this.remainingLives = 0;
-        this.rounds[this.currentRound - 1] = this.user.role;
+        if (this.user.role == 'A') {
+          this.rounds[this.currentRound - 1] = 'B';
+        } else {
+          this.rounds[this.currentRound - 1] = 'A';
+        }
         this.gameOver = true;
       }
       this.updateHangmanImage();

@@ -5,6 +5,7 @@ target/
 !**/src/test/**/target/
 .m2/
 .env
+.ssh
 
 ### STS ###
 .apt_generated

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Client, StompSubscription } from '@stomp/stompjs';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { environment } from '../../../environment';
 
 /**
  * WebsocketService handles WebSocket connections and subscriptions using STOMP.
@@ -15,7 +16,7 @@ export class WebsocketService {
 
   constructor() {
     this.client = new Client({
-      brokerURL: 'ws://localhost/game',
+      brokerURL: environment.wsUrl,
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
@@ -27,6 +28,12 @@ export class WebsocketService {
 
     this.client.onDisconnect = () => {
       this.connected.next(false);
+      setTimeout(() => {
+        if (!this.client.active) {
+          console.log('Attempting to reconnect...');
+          this.client.activate();
+        }
+      }, 5000);
     };
 
     this.client.activate();

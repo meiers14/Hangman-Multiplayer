@@ -68,7 +68,7 @@
 
             <div class="footer-buttons">
                 <button class="btn btn-primary counter-button" (click)="startNewRound()"
-                    [disabled]="(!gameOver && !gameWon) || (currentRound > selectedRounds) || !opponentFinished || user.role != 'A'">
+                    [disabled]="(!gameOver && !gameWon) || (currentRound > selectedRounds) || !opponentFinished || user?.role != 'A'">
                     Neue Runde starten
                 </button>
                 <button class="btn btn-danger counter-button" (click)="returnToLobby()">Spiel verlassen</button>

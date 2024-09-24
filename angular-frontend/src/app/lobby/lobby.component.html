@@ -6,12 +6,12 @@
   <div class="top-section" *ngIf="lobby">
     <div class="players">
       <div class="player-box" *ngFor="let player of players" [ngClass]="{
-          'current-player-a': player.name === user.name && player.role === 'A',
-          'current-player-b': player.name === user.name && player.role === 'B',
-          'inactive-player-a': player.name !== user.name && player.role === 'A',
-          'inactive-player-b': player.name !== user.name && player.role === 'B'
+          'current-player-a': player?.name === user?.name && player?.role === 'A',
+          'current-player-b': player?.name === user?.name && player?.role === 'B',
+          'inactive-player-a': player?.name !== user?.name && player?.role === 'A',
+          'inactive-player-b': player?.name !== user?.name && player?.role === 'B'
       }">
-        {{ player.name }}
+        {{ player?.name }}
       </div>
     </div>
     <div class="lobby-code-section">
@@ -29,12 +29,12 @@
       <h2 class="modes-title">Wähle einen Spielmodus</h2>
       <div class="modes-row">
         <div class="mode" *ngFor="let mode of gameModes" (click)="updateMode(mode.id)"
-          [ngClass]="{'selected': selectedMode.id === mode.id, 'disabled': user.role !== 'A'}">
+          [ngClass]="{'selected': selectedMode?.id === mode?.id, 'disabled': user?.role !== 'A'}">
           <div class="card">
-            <img [src]="mode.image" class="card-img-top" alt="{{ mode.name }}">
+            <img [src]="mode?.image" class="card-img-top" alt="{{ mode?.name }}">
             <div class="card-body">
-              <h5 class="card-title">{{ mode.name }}</h5>
-              <p class="card-text">{{ mode.description }}</p>
+              <h5 class="card-title">{{ mode?.name }}</h5>
+              <p class="card-text">{{ mode?.description }}</p>
             </div>
           </div>
         </div>
@@ -45,7 +45,7 @@
       <h3>Schwierigkeit</h3>
       <input type="range" min="1" max="3" step="1" [ngModel]="DifficultyHelper.toNumber(selectedDifficulty)"
         (ngModelChange)="updateDifficulty($event)"
-        [disabled]="!selectedMode || user.role !== 'A'">
+        [disabled]="!selectedMode || user?.role !== 'A'">
       <p>{{ selectedDifficulty }}</p>
     </div>
 
@@ -53,7 +53,7 @@
       <h3>Anzahl der Runden</h3>
       <input type="range" min="3" max="7" step="2" [(ngModel)]="selectedRounds"
         (change)="user.role === 'A' && updateRounds()"
-        [disabled]="!selectedMode || user.role !== 'A'">
+        [disabled]="!selectedMode || user?.role !== 'A'">
       <p>{{ selectedRounds }}</p>
     </div>
   </div>
