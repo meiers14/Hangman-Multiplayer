@@ -48,12 +48,31 @@ export class DuelRoyaleComponent extends GameComponent {
    * Overrides the checkWin method to record the round's winner based on the player's role.
    */
   override checkWin() {
-    if (this.displayWord.join('') === this.word) {
+    if (this.displayWord.join('') === this.word && this.username === this.currentPlayer?.name) {
       this.gameWon = true;
       this.wins++;
       this.rounds[this.currentRound - 1] = this.user.role;
       this.switchPlayer();
       this.sendGameUpdate();
+    }
+  }
+
+  /**
+   * Updates the game state locally based on the game state received from the server.
+   * @param gameState The current game state from the server.
+   */
+  override updateGameState(gameState: any) {
+    if (gameState) {
+      this.word = gameState.word ?? this.word;
+      this.displayWord = gameState.displayWord ?? this.displayWord;
+      this.remainingLives = gameState.remainingLives ?? this.remainingLives;
+      this.currentRound = gameState.currentRound ?? this.currentRound;
+      this.selectedRounds = gameState.selectedRounds ?? this.selectedRounds;
+      this.guessedLetters = gameState.guessedLetters ?? this.guessedLetters;
+      this.currentPlayer = gameState.currentPlayer ?? this.currentPlayer;
+      this.rounds = gameState.rounds ?? this.rounds;
+      this.isCurrentPlayer = (this.username === this.currentPlayer?.name);
+      this.updateHangmanImage();
     }
   }
 }
