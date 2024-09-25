@@ -48,7 +48,7 @@ export class DuelRoyaleComponent extends GameComponent {
    * Overrides the checkWin method to record the round's winner based on the player's role.
    */
   override checkWin() {
-    if (this.displayWord.join('') === this.word && this.username === this.currentPlayer?.name) {
+    if (this.displayWord.join('') === this.word && this.username == this.currentPlayer?.name) {
       this.gameWon = true;
       this.wins++;
       this.rounds[this.currentRound - 1] = this.user.role;

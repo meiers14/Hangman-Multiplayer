@@ -74,10 +74,10 @@
                     </div>
                 </div>
 
-                <div *ngIf="gameOver && user?.name === currentPlayer?.name" class="game-over mb-4">
+                <div *ngIf="gameOver && user?.name == currentPlayer?.name" class="game-over mb-4">
                     <p>Game Over! Das gesuchte Wort war: {{ word }}</p>
                 </div>
-                <div *ngIf="gameWon && user?.name === currentPlayer?.name" class="game-won mb-4">
+                <div *ngIf="gameWon && user?.name == currentPlayer?.name" class="game-won mb-4">
                     <p>Glückwunsch! Du hast das Wort erraten: {{ word }}</p>
                 </div>
             </div>
