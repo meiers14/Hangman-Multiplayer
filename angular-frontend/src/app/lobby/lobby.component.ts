@@ -249,6 +249,5 @@ export class LobbyComponent implements OnInit {
                 this.snackBar.open(error.error || 'Fehler beim Verlassen der Lobby', 'Schließen', {duration: 3000});
             }
         });
-        this.websocketService.disconnect();
     }
 }

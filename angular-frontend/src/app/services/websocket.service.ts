@@ -43,12 +43,6 @@ export class WebsocketService {
     return this.connected.asObservable();
   }
 
-  disconnect(): void {
-    if (this.client.active) {
-      this.client.deactivate();
-    }
-  }
-
   subscribeToLobby(lobbyCode: string, callback: (message: any) => void): StompSubscription {
     const destination = `/topic/lobby/${lobbyCode}`;
     return this.client.subscribe(destination, message => {
