@@ -47,6 +47,7 @@ export class GameComponent implements OnInit {
     rounds: string[] = [];
 
     wins: number = 0;
+    winner: Player | null = null;
 
     chatMessages: { sender: string, message: string, timestamp: string }[] = [];
     newMessage: string = '';
@@ -266,6 +267,7 @@ export class GameComponent implements OnInit {
             console.error('Keine Wörter verfügbar.');
             return;
         }
+        this.winner = null;
         this.guessedLetters = [];
         this.remainingLives = 6;
         this.hangmanImage = 'assets/hangman0.png';

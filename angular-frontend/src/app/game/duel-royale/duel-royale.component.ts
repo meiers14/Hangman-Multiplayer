@@ -50,6 +50,7 @@ export class DuelRoyaleComponent extends GameComponent {
   override checkWin() {
     if (this.displayWord.join('') === this.word) {
       this.gameWon = true;
+      this.winner = this.user;
       this.wins++;
       this.rounds[this.currentRound - 1] = this.user.role;
       this.switchPlayer();
